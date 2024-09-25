@@ -61,14 +61,14 @@ class Conta(models.Model):
         ('poupanca', 'Poupança'),
     ]
 
-    numeroConta = models.CharField(primary_key=True, default=0, max_length=10, unique=True)
+    numeroConta = models.CharField(_('Número da Conta'), primary_key=True, default=0, max_length=10, unique=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     agencia = models.ForeignKey(Agencia, on_delete=models.CASCADE)
-    tipoConta = models.CharField(max_length=10, choices=TIPO_CONTA_CHOICES)
-    saldo = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    limiteCredito = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    saldoDisponivel = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
-    dataAbertura = models.DateField(auto_now_add=True)
+    tipoConta = models.CharField(_('Tipo de Conta'), max_length=10, choices=TIPO_CONTA_CHOICES)
+    saldo = models.DecimalField(_('Saldo'), max_digits=10, decimal_places=2, default=0)
+    limiteCredito = models.DecimalField(_('Limite de Crédito'), max_digits=10, decimal_places=2, default=0)
+    saldoDisponivel = models.DecimalField(_('Saldo Disponivel'), max_digits=10, decimal_places=2, default=0, editable=False)
+    dataAbertura = models.DateField(_('Data de Abertura'), auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if self.numeroConta == '0':
@@ -104,14 +104,102 @@ class Transacao(models.Model):
     ]
 
     conta = models.ForeignKey(Conta, on_delete=models.CASCADE, related_name='transacoes')
-    tipoTransacao = models.CharField(max_length=15, choices=TIPO_TRANSACAO_CHOICES)
-    valor = models.DecimalField(max_digits=10, decimal_places=2)
-    dataHora = models.DateTimeField(auto_now_add=True)
-    dataAgendamento = models.DateTimeField(blank=True, null=True)
-    descricao = models.CharField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=10, choices=STATUS_TRANSACAO_CHOICES, default='concluida')
+    tipoTransacao = models.CharField(_('Tipo de Transação'), max_length=15, choices=TIPO_TRANSACAO_CHOICES)
+    valor = models.DecimalField(_('Valor'), max_digits=10, decimal_places=2)
+    dataHora = models.DateTimeField(_('Data e Hora'), auto_now_add=True)
+    dataAgendamento = models.DateTimeField(_('Data do Agendamento'), blank=True, null=True)
+    descricao = models.CharField(_('Descrição'), max_length=255, blank=True, null=True)
+    status = models.CharField(_('Status'), max_length=10, choices=STATUS_TRANSACAO_CHOICES, default='Pendente')
     contaDestino = models.ForeignKey(Conta, on_delete=models.SET_NULL, null=True, blank=True, related_name='transferencias')
 
+from app.models import Conta
+
+# Exemplo: alterar o saldo de uma conta existente
+def alterar_saldo(numero_conta, novo_saldo):
+    try:
+        # Obtém a conta pelo número
+        conta = Conta.objects.get(numeroConta=numero_conta)
+        
+        # Altera o saldo
+        conta.saldo = novo_saldo
+        
+        # Atualiza o saldo disponível (caso use esse campo)
+        conta.saldoDisponivel = conta.saldo + conta.limiteCredito
+        
+        # Salva as mudanças no banco de dados
+        conta.save()
+
+        print(f"Saldo da conta {numero_conta} atualizado com sucesso.")
+        
+    except Conta.DoesNotExist:
+        print(f"Conta com o número {numero_conta} não encontrada.")
+
+
+def save(self, *args, **kwargs):
+    # Quando a transação for criada pela primeira vez (sem ID)
+    if not self.pk:  
+        self.status = 'pendente'  # Definindo o status inicial como 'pendente'
+    
+    super().save(*args, **kwargs)  # Salva a transação com status pendente
+    
+    # Após salvar a transação, verificamos o saldo para aprovação ou cancelamento
+    if self.status == 'pendente':
+        if self.tipoTransacao == 'deposito':
+            # Adiciona o valor ao saldo da conta
+            self.conta.saldo += self.valor
+            novoSaldo = self.conta.saldo
+            alterar_saldo(self.conta.numeroConta, novoSaldo) 
+            self.status = 'concluida'
+
+        elif self.tipoTransacao == 'saque':
+            if self.conta.saldo >= self.valor:
+                self.conta.saldo -= self.valor
+                novoSaldo = self.conta.saldo
+                alterar_saldo(self.conta.numeroConta, novoSaldo) 
+                self.status = 'concluida'
+            else:
+                self.status = 'cancelada'
+                self.criar_notificacao_saldo_insuficiente()
+
+        elif self.tipoTransacao == 'transferencia':
+            if self.conta.saldo >= self.valor and self.contaDestino:
+                self.conta.saldo -= self.valor
+                novoSaldo = self.conta.saldo
+                alterar_saldo(self.conta.numeroConta, novoSaldo) 
+                self.contaDestino.saldo += self.valor
+                novoSaldo = self.conta.saldo
+                alterar_saldo(self.contaDestino.numeroConta, novoSaldo) 
+                self.contaDestino.save()  # Salva a conta de destino com o saldo atualizado
+                self.status = 'concluida'
+            else:
+                self.status = 'cancelada'
+                self.criar_notificacao_saldo_insuficiente()
+
+        elif self.tipoTransacao == 'pagamento':
+            if self.conta.saldo >= self.valor:
+                self.conta.saldo -= self.valor
+                novoSaldo = self.conta.saldo
+                alterar_saldo(self.conta.numeroConta, novoSaldo) 
+                self.status = 'concluida'
+            else:
+                self.status = 'cancelada'
+                self.criar_notificacao_saldo_insuficiente()
+
+        # Salva a conta de origem com o saldo atualizado
+        self.conta.save()
+        self.save(update_fields=['status'])  # Atualiza o status da transação após a verificação de saldo
+
+def criar_notificacao_saldo_insuficiente(self):
+    """
+    Cria uma notificação para o cliente informando sobre saldo insuficiente.
+    """
+    Notificacao.objects.create(
+        cliente=self.conta.cliente,
+        tipoNotificacao='transacao',
+        mensagem=f'Saldo insuficiente para a transação de {self.tipoTransacao} no valor de {self.valor}.',
+    )
+
+    
     class Meta:
         verbose_name = _('Transação')
         verbose_name_plural = _('Transações')
@@ -129,10 +217,10 @@ class Cartao(models.Model):
         ('mastercard', 'MasterCard'),
     ]
 
-    numeroCartao = models.BigIntegerField(unique=True, blank=True)  # Defina como blank=True para que possa ser gerado
-    bandeira = models.CharField(max_length=20, choices=BANDEIRAS, default='visa')
-    cvv = models.IntegerField(blank=True)  # Permita que seja gerado
-    dataExpiracao = models.DateField(blank=True)  # Permita que seja gerada
+    numeroCartao = models.BigIntegerField(_('Numero do Cartão'), unique=True, blank=True)  # Defina como blank=True para que possa ser gerado
+    bandeira = models.CharField(_('Bandeira'), max_length=20, choices=BANDEIRAS, default='visa')
+    cvv = models.IntegerField(_('CVV'), blank=True)  # Permita que seja gerado
+    dataExpiracao = models.DateField(_('Data de Expiração'), blank=True)  # Permita que seja gerada
     conta = models.ForeignKey(Conta, on_delete=models.CASCADE)
 
     class Meta:
@@ -175,9 +263,9 @@ class Notificacao(models.Model):
     ]
 
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    tipoNotificacao = models.CharField(max_length=15, choices=TIPO_NOTIFICACAO_CHOICES)
+    tipoNotificacao = models.CharField(_('Tipo de Notificação'), max_length=15, choices=TIPO_NOTIFICACAO_CHOICES)
     mensagem = models.TextField()
-    dataEnvio = models.DateTimeField(auto_now_add=True)
+    dataEnvio = models.DateTimeField(_('Data de envio'), auto_now_add=True)
     
     class Meta:
         verbose_name = _('Notificação')
@@ -189,9 +277,9 @@ class Notificacao(models.Model):
 class Extrato(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     conta = models.ForeignKey(Conta, on_delete=models.SET_NULL, null=True)
-    acao = models.CharField(max_length=255)
-    dataHora = models.DateTimeField(auto_now_add=True)
-    detalhes = models.TextField(blank=True, null=True)
+    acao = models.CharField(_('Ação'), max_length=255)
+    dataHora = models.DateTimeField(_('Data e hora'), auto_now_add=True)
+    detalhes = models.TextField(_('Detalhes'), blank=True, null=True)
     
     class Meta:
         verbose_name = _('Extrato')
@@ -199,4 +287,38 @@ class Extrato(models.Model):
 
     def __str__(self):
         return f'{self.cliente.nome} - {self.acao}'
+
+
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=Transacao)
+def criar_notificacao_transacao(sender, instance, created, **kwargs):
+    if created:
+        mensagem = f'{instance.tipoTransacao.capitalize()} de R$ {instance.valor} foi realizada com sucesso.'
+        Notificacao.objects.create(
+            cliente=instance.conta.cliente,
+            tipoNotificacao='transacao',
+            mensagem=mensagem
+        )
+
+@receiver(post_save, sender=Transacao)
+def criar_extrato_transacao(sender, instance, created, **kwargs):
+    if created:
+        Extrato.objects.create(
+            cliente=instance.conta.cliente,
+            conta=instance.conta,
+            acao=f'{instance.tipoTransacao.capitalize()} de R$ {instance.valor}',
+            detalhes=f'Transação realizada em {instance.dataHora}.',
+        )
+        
+def gerar_extrato_unico(cliente):
+    extratos = Extrato.objects.filter(cliente=cliente).order_by('-dataHora')
+    extrato_consolidado = []
+    for extrato in extratos:
+        descricao = f"{extrato.acao} - {extrato.detalhes} em {extrato.dataHora.strftime('%d/%m/%Y %H:%M')}"
+        extrato_consolidado.append(descricao)
+    return extrato_consolidado
 
