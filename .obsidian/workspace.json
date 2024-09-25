@@ -11,11 +11,9 @@
             "id": "489928df41d9e44a",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "image",
               "state": {
-                "file": "Fase1/Descrição.md",
-                "mode": "source",
-                "source": false
+                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png"
               }
             }
           }
@@ -85,7 +83,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Fase1/Descrição.md",
+                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +100,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Fase1/Descrição.md",
+                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +123,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Fase1/Descrição.md"
+                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png"
               }
             }
           }
@@ -146,8 +144,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "ae705d4f97bbec61",
+  "active": "489928df41d9e44a",
   "lastOpenFiles": [
+    "Fase1/Descrição.md",
+    "Fase1/Diagrama de classes(feito no mysqlworkbench).png",
     "BancoDigital/Banco/app/migrations/__pycache__/0003_alter_conta_numeroconta.cpython-312.pyc",
     "BancoDigital/Banco/app/migrations/0003_alter_conta_numeroconta.py",
     "BancoDigital/Banco/media/3e34b5aa-ec88-4ceb-8788-82f18a2ce217.png",
@@ -160,10 +160,8 @@
     "BancoDigital/Banco/app/migrations/__pycache__/__init__.cpython-312.pyc",
     "BancoDigital/Banco/app/migrations/__pycache__",
     "BancoDigital/Banco/app/migrations/__pycache__/0002_alter_agencia_endereco_alter_agencia_nomeagencia_and_more.cpython-312.pyc",
-    "BancoDigital/Banco/app/migrations/0002_alter_agencia_endereco_alter_agencia_nomeagencia_and_more.py",
     "Fase1/Classes/Cartões.md",
     "Fase1/Classes/Agências.md",
-    "Fase1/Descrição.md",
     "Fase1/Classes/Contas.md",
     "Fase1/Classes/Transações.md",
     "Fase1/Classes/Notificações.md",
