@@ -81,11 +81,11 @@ DATABASES = {
 
         'ENGINE': 'django.db.backends.postgresql',
 
-        'NAME': 'ProjetoBancoDigital',
+        'NAME': 'BancoDigital',
 
         'USER': 'postgres',
 
-        'PASSWORD': '123321',
+        'PASSWORD': 'root',
 
         'HOST': 'localhost',
 

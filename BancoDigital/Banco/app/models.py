@@ -86,7 +86,7 @@ class Cliente(models.Model):
 
 class Agencia(models.Model):
     nomeagencia = models.CharField(_('Nome da Agência'), max_length=100, null=False)
-    numeroagencia = models.AutoField(primary_key=True, max_length=10, unique=True, editable=False, null=False)
+    numeroagencia = models.AutoField(primary_key=True, unique=True, editable=False, null=False)
     endereco = models.ForeignKey(Endereco, on_delete=models.CASCADE)
 
 # gerar numero da agencia comecando no 1 e adicionando 1
@@ -104,7 +104,7 @@ class Agencia(models.Model):
 ##########################################################################################
 
 class Conta(models.Model):
-    numeroConta = models.IntegerField(_('Número da Conta'), primary_key=True, max_length=10, unique=True, editable=False, null=False)
+    numeroConta = models.AutoField(_('Número da Conta'), primary_key=True, unique=True, editable=False, null=False)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     agencia = models.ForeignKey(Agencia, on_delete=models.CASCADE)
     saldo = models.DecimalField(_('Saldo'), max_digits=10, decimal_places=2, default=0, editable=False)
@@ -138,7 +138,7 @@ class Transacao(models.Model):
     conta = models.ForeignKey(Conta, on_delete=models.CASCADE, related_name='transacoes')
     tipoTransacao = models.CharField(_('Tipo de Transação'), max_length=15, choices=TIPO_TRANSACAO_CHOICES)
     valor = models.DecimalField(_('Valor'), max_digits=10, decimal_places=2)
-    dataHora = models.DateTimeField(_('Data e Hora'), auto_now_add=True)
+    dataHora = models.DateTimeField(_('Data e Hora'), auto_now_add=True, null=True)
     descricao = models.CharField(_('Descrição'), max_length=255, blank=True, null=True)
     status = models.CharField(_('Status'), max_length=10, choices=STATUS_TRANSACAO_CHOICES, default='Pendente', editable=False)
     contaDestino = models.ForeignKey(Conta, on_delete=models.SET_NULL, null=True, blank=True, related_name='transferencias')
@@ -214,7 +214,7 @@ class Notificacao(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, default=0)
     tipoNotificacao = models.CharField(_('Tipo de Notificação'), choices=TIPO_NOTIFICACAO_CHOICES)
     mensagem = models.TextField()
-    dataEnvio = models.DateTimeField(_('Data de envio'), auto_now_add=True, editable=False)
+    dataEnvio = models.DateTimeField(_('Data de envio'), auto_now_add=True, editable=False, null=True)
     
 # gerar id da notificacao comecando no 1 e adicionando 1
     
