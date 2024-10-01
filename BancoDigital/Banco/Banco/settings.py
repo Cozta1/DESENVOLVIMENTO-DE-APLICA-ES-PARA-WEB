@@ -81,7 +81,7 @@ DATABASES = {
 
         'ENGINE': 'django.db.backends.postgresql',
 
-        'NAME': 'ProjetoBancoD',
+        'NAME': 'ProjetoBancoDigital',
 
         'USER': 'postgres',
 

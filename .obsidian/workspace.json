@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "cfd86bbcb506c79f",
+        "id": "1cc8bb0589611c43",
         "type": "tabs",
         "children": [
           {
-            "id": "489928df41d9e44a",
+            "id": "dec3dd94c3e50ee9",
             "type": "leaf",
             "state": {
               "type": "image",
               "state": {
-                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png"
+                "file": "Fase1/Diagrama de classes banco.png"
               }
             }
           }
@@ -67,7 +67,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 343.5
   },
   "right": {
     "id": "80b28acfa153d14d",
@@ -83,7 +83,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png",
+                "file": "Fase1/Diagrama de classes banco.png",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -100,7 +100,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png",
+                "file": "Fase1/Diagrama de classes banco.png",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -123,7 +123,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Fase1/Diagrama de classes(feito no mysqlworkbench).png"
+                "file": "Fase1/Diagrama de classes banco.png"
               }
             }
           }
@@ -144,9 +144,13 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "489928df41d9e44a",
+  "active": "ae705d4f97bbec61",
   "lastOpenFiles": [
     "Fase1/Descrição.md",
+    "Fase1/Diagrama de classes banco.png",
+    "Fase1/diagramaclassebanco.mdj",
+    "Fase1/Classes/Agências.md",
+    "Fase1/Classes/Extrato.md",
     "Fase1/Diagrama de classes(feito no mysqlworkbench).png",
     "BancoDigital/Banco/app/migrations/__pycache__/0003_alter_conta_numeroconta.cpython-312.pyc",
     "BancoDigital/Banco/app/migrations/0003_alter_conta_numeroconta.py",
@@ -159,13 +163,10 @@
     "BancoDigital/Banco/app/migrations/0001_initial.py",
     "BancoDigital/Banco/app/migrations/__pycache__/__init__.cpython-312.pyc",
     "BancoDigital/Banco/app/migrations/__pycache__",
-    "BancoDigital/Banco/app/migrations/__pycache__/0002_alter_agencia_endereco_alter_agencia_nomeagencia_and_more.cpython-312.pyc",
     "Fase1/Classes/Cartões.md",
-    "Fase1/Classes/Agências.md",
     "Fase1/Classes/Contas.md",
     "Fase1/Classes/Transações.md",
     "Fase1/Classes/Notificações.md",
-    "Fase1/Classes/Extrato.md",
     "Fase1/Classes/Clientes.md",
     "Conta.md",
     "numeroConta.md",
