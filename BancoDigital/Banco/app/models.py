@@ -46,7 +46,7 @@ class Endereco(models.Model):
         ('TO', 'TO'),
     ]
     
-    cep = models.CharField(_('CEP'), max_length=8)
+    cep = models.CharField(_('CEP'), max_length=9)
     rua = models.CharField(_('Rua'), max_length=100)
     bairro = models.CharField(_('Bairro'), max_length=50)
     cidade = models.CharField(_('Cidade'), max_length=50)
@@ -66,7 +66,7 @@ class Endereco(models.Model):
 ##########################################################################################
 
 class Cliente(models.Model):
-    CPF = models.CharField(_('CPF'), max_length=11, unique=True)
+    CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
     nome = models.CharField(_('Nome'), max_length=100)
     email = models.EmailField(_('E-Mail'), blank=True, null=True)
     telefone = models.CharField(_('Telefone'), max_length=15, blank=True, null=True)
@@ -86,7 +86,7 @@ class Cliente(models.Model):
 
 class Agencia(models.Model):
     nomeagencia = models.CharField(_('Nome da Agência'), max_length=100, null=False)
-    numeroagencia = models.CharField(max_length=10, unique=True, default='0000000000', editable=False)
+    numeroagencia = models.AutoField(primary_key=True, max_length=10, unique=True, editable=False, null=False)
     endereco = models.ForeignKey(Endereco, on_delete=models.CASCADE)
 
 # gerar numero da agencia comecando no 1 e adicionando 1
@@ -97,11 +97,14 @@ class Agencia(models.Model):
         
     def __str__(self):
         return self.nomeagencia
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
 ##########################################################################################
 
 class Conta(models.Model):
-    numeroConta = models.CharField(_('Número da Conta'), primary_key=True, default=0, max_length=10, unique=True, editable=False)
+    numeroConta = models.IntegerField(_('Número da Conta'), primary_key=True, max_length=10, unique=True, editable=False, null=False)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     agencia = models.ForeignKey(Agencia, on_delete=models.CASCADE)
     saldo = models.DecimalField(_('Saldo'), max_digits=10, decimal_places=2, default=0, editable=False)
