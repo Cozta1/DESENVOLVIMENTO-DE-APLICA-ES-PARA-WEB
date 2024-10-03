@@ -81,11 +81,11 @@ DATABASES = {
 
         'ENGINE': 'django.db.backends.postgresql',
 
-        'NAME': 'BancoDigital',
+        'NAME': 'ProjetoBancoDigital',
 
         'USER': 'postgres',
 
-        'PASSWORD': 'root',
+        'PASSWORD': '123321',
 
         'HOST': 'localhost',
 
@@ -93,6 +93,21 @@ DATABASES = {
 
     }
 
+    # 'default': {
+
+    #     'ENGINE': 'django.db.backends.postgresql',
+
+    #     'NAME': 'BancoDigital',
+
+    #     'USER': 'postgres',
+
+    #     'PASSWORD': 'root',
+
+    #     'HOST': 'localhost',
+
+    #     'PORT': '5432',
+
+    # }
 
 }
 
