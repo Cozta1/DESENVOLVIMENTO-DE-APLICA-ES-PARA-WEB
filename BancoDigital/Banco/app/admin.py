@@ -3,7 +3,7 @@ from django.contrib import admin
 # Register your models here.
 from django.contrib import admin
 
-from .models import Cliente, Agencia, Conta, Transacao, Cartao, Notificacao, Endereco
+from .models import Cliente, Agencia, Conta, Transacao, Cartao, Endereco
 
 
 @admin.register(Endereco)
@@ -40,12 +40,9 @@ class CartaoAdmin(admin.ModelAdmin):
     list_display = ('numeroCartao', 'bandeira', 'cvv', 'dataExpiracao', 'conta')
 
 
-@admin.register(Notificacao)
-class NotificacaoAdmin(admin.ModelAdmin):
-    list_display = ('cliente', 'mensagem', 'dataHora', 'status')
+# @admin.register(Notificacao)
+# class NotificacaoAdmin(admin.ModelAdmin):
+#     list_display = ('conta', 'mensagem', 'dataEnvio')
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        return qs.select_related('cliente')  # Otimizar as consultas para evitar N+1
 
 

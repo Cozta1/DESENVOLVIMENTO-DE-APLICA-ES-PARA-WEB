@@ -77,6 +77,22 @@ WSGI_APPLICATION = 'Banco.wsgi.application'
 
 DATABASES = {
 
+#     'default': {
+
+#         'ENGINE': 'django.db.backends.postgresql',
+
+#         'NAME': 'ProjetoBancoDigital',
+
+#         'USER': 'postgres',
+
+#         'PASSWORD': '123321',
+
+#         'HOST': 'localhost',
+
+#         'PORT': '5432',
+
+#     }
+
     'default': {
 
         'ENGINE': 'django.db.backends.postgresql',
@@ -85,29 +101,13 @@ DATABASES = {
 
         'USER': 'postgres',
 
-        'PASSWORD': '123321',
+        'PASSWORD': 'root',
 
         'HOST': 'localhost',
 
         'PORT': '5432',
 
     }
-
-    # 'default': {
-
-    #     'ENGINE': 'django.db.backends.postgresql',
-
-    #     'NAME': 'BancoDigital',
-
-    #     'USER': 'postgres',
-
-    #     'PASSWORD': 'root',
-
-    #     'HOST': 'localhost',
-
-    #     'PORT': '5432',
-
-    # }
 
 }
 
