@@ -85,26 +85,6 @@ class Conta(models.Model):
     agencia = models.ForeignKey(Agencia, on_delete=models.CASCADE)
     dataAbertura = models.DateField(_('Data de Abertura'), auto_now_add=True)
 
-
-    def save(self, *args, **kwargs):
-        if self.tipoTransacao in ['saque', 'transferencia']:
-            if self.conta.saldo < self.valor:
-                self.status = 'cancelada'
-                super().save(*args, **kwargs)
-                return
-
-        if self.tipoTransacao == 'saque':
-            self.conta.sacar(self.valor)
-        elif self.tipoTransacao == 'deposito':
-            self.conta.depositar(self.valor)
-        elif self.tipoTransacao == 'transferencia' and self.contaDestino:
-            # Realiza a transferência de forma correta
-            self.conta.sacar(self.valor)
-            self.contaDestino.depositar(self.valor)
-
-        self.status = 'concluida'
-        super().save(*args, **kwargs)
-
     class Meta:
         verbose_name = _('Transação')
         verbose_name_plural = _('Transações')
@@ -143,8 +123,8 @@ class Conta(models.Model):
             raise ValueError("O valor da transferência deve ser positivo.")
         if self.saldo < valor:
             raise ValueError("Saldo insuficiente para realizar a transferência.")
-        self.sacar(valor)
-        contaDestino.depositar(valor)
+        #self.sacar(valor)
+        #contaDestino.depositar(valor)
 
     class Meta:
         verbose_name = _('Conta')
@@ -179,9 +159,10 @@ class Transacao(models.Model):
             if self.tipoTransacao == 'deposito':
                 self.conta.depositar(self.valor)
             else:
+
                 if self.tipoTransacao == 'transferencia' and self.contaDestino:
-                    self.conta.sacar(self.valor)
-                    self.contaDestino.depositar(self.valor)
+                    print(self.contaDestino)
+                    self.conta.transferir(self.contaDestino, self.valor)
 
         self.status = 'concluida'
         super().save(*args, **kwargs)
