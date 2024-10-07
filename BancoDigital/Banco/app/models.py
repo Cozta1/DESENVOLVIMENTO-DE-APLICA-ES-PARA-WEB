@@ -265,3 +265,7 @@ class Notificacao(models.Model):
     conta = models.ForeignKey(Conta, on_delete=models.CASCADE, related_name='notificacoes')
     mensagem = models.TextField(_('Mensagem'))
     dataHora = models.DateTimeField(_('Data e Hora'), auto_now_add=True)
+    
+    class Meta:
+        verbose_name = _('Notificação')
+        verbose_name_plural = _('Notificações')
