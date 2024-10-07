@@ -204,31 +204,6 @@ class Transacao(models.Model):
 
         super().save(*args, **kwargs)
 
-
-    # def save(self, *args, **kwargs):
-    #     if self.tipoTransacao in ['saque', 'transferencia']:
-    #         if self.conta.saldo < self.valor:
-    #             self.status = 'cancelada'
-    #             super().save(*args, **kwargs)
-    #             return
-
-    #     if self.tipoTransacao == 'saque':
-    #         self.conta.sacar(self.valor)
-    #     else:
-    #         if self.tipoTransacao == 'deposito':
-    #             self.conta.depositar(self.valor)
-    #         else:
-
-    #             if self.tipoTransacao == 'transferencia' and self.contaDestino:
-    #                 # print(self.contaDestino)
-    #                 # self.conta.transferir(self.contaDestino, self.valor)
-    #                 self.conta.sacar(self.valor)
-    #                 self.contaDestino.depositar(self.valor)
-                    
-
-    #     self.status = 'concluida'
-    #     super().save(*args, **kwargs)
-
     class Meta:
         verbose_name = _('Transação')
         verbose_name_plural = _('Transações')
@@ -290,6 +265,3 @@ class Notificacao(models.Model):
     conta = models.ForeignKey(Conta, on_delete=models.CASCADE, related_name='notificacoes')
     mensagem = models.TextField(_('Mensagem'))
     dataHora = models.DateTimeField(_('Data e Hora'), auto_now_add=True)
-
-    # def __str__(self):
-    #     return f'Notificação para {self.conta.cliente.nome}: {self.mensagem}'
