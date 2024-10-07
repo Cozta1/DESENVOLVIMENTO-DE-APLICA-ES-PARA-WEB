@@ -50,6 +50,8 @@ class Endereco(models.Model):
     def __str__(self):
         return f'{self.bairro} - {self.rua} - {self.numero}'
 
+###################################################################################
+
 class Cliente(models.Model):
     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
     nome = models.CharField(_('Nome'), max_length=100)
@@ -67,6 +69,8 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nome
 
+###################################################################################
+
 class Agencia(models.Model):
     nomeagencia = models.CharField(_('Nome da Agência'), max_length=100)
     numeroagencia = models.AutoField(primary_key=True, unique=True, editable=False)
@@ -78,6 +82,9 @@ class Agencia(models.Model):
 
     def __str__(self):
         return self.nomeagencia
+
+
+###################################################################################
 
 class Conta(models.Model):
     numeroConta = models.AutoField(_('Número da Conta'), primary_key=True, unique=True, editable=False)
@@ -95,13 +102,13 @@ class Conta(models.Model):
     @property
     def saldo(self):
         total_creditos = self.transacoes.filter(
-            tipoTransacao__in=['deposito', 'transferencia'],
+            tipoTransacao__in=['deposito'],
             status='concluida',
             contaDestino=self
         ).aggregate(Sum('valor'))['valor__sum'] or 0
 
         total_debitos = self.transacoes.filter(
-            tipoTransacao__in=['saque', 'transferencia'],
+            tipoTransacao__in=['saque'],
             status='concluida',
             conta=self
         ).aggregate(Sum('valor'))['valor__sum'] or 0
@@ -123,8 +130,8 @@ class Conta(models.Model):
             raise ValueError("O valor da transferência deve ser positivo.")
         if self.saldo < valor:
             raise ValueError("Saldo insuficiente para realizar a transferência.")
-        #self.sacar(valor)
-        #contaDestino.depositar(valor)
+        self.sacar(valor)
+        contaDestino.depositar(valor)
 
     class Meta:
         verbose_name = _('Conta')
@@ -132,6 +139,8 @@ class Conta(models.Model):
 
     def __str__(self):
         return f'{self.cliente.nome} - {self.saldo}'
+
+###################################################################################
 
 class Transacao(models.Model):
     numeroTransacao = models.AutoField(_('Número da Transação'), primary_key=True)
@@ -146,26 +155,79 @@ class Transacao(models.Model):
     status = models.CharField(_('Status'), max_length=20, default='pendente', editable=False)
     dataHora = models.DateTimeField(_('Data e Hora da Transação'), auto_now_add=True, null=True)
 
-    def save(self, *args, **kwargs):
-        if self.tipoTransacao in ['saque', 'transferencia']:
-            if self.conta.saldo < self.valor:
-                self.status = 'cancelada'
-                super().save(*args, **kwargs)
-                return
+    
 
+    def save(self, *args, **kwargs):
         if self.tipoTransacao == 'saque':
             self.conta.sacar(self.valor)
-        else:
-            if self.tipoTransacao == 'deposito':
-                self.conta.depositar(self.valor)
-            else:
+            self.status = 'concluida'
+            super().save(*args, **kwargs)
+            # Criar notificação para saque
+            Notificacao.objects.create(
+                conta=self.conta,
+                mensagem=f"Saque no valor de: R$:{self.valor} de {self.contaDestino} realizado com sucesso para transferência.")
+            
+        elif self.tipoTransacao == 'deposito':
+            self.conta.depositar(self.valor)
+            self.status = 'concluida'
+            super().save(*args, **kwargs)
+            
+            # Criar notificação para depósito
+            Notificacao.objects.create(
+                conta=self.conta,
+                mensagem=f"Depósito no valor de: R$:{self.valor} de {self.contaDestino} realizado com sucesso.")
+            
+        elif self.tipoTransacao == 'transferencia' and self.contaDestino:
+            # Criar transação de saque
+            saque = Transacao(
+                conta=self.conta,
+                contaDestino=self.conta,
+                valor=self.valor,
+                tipoTransacao='saque',
+                status='concluida',
+                dataHora=self.dataHora,)
+            saque.save()
 
-                if self.tipoTransacao == 'transferencia' and self.contaDestino:
-                    print(self.contaDestino)
-                    self.conta.transferir(self.contaDestino, self.valor)
+            # Criar transação de depósito na conta destino
+            deposito = Transacao(
+                conta=self.contaDestino,
+                contaDestino=self.contaDestino,
+                valor=self.valor,
+                tipoTransacao='deposito',
+                status='concluida',
+                dataHora=self.dataHora,)
+            deposito.save()
 
-        self.status = 'concluida'
+            
+            # Marcar a transação original como transferência concluída
+            self.status = 'concluida'
+
         super().save(*args, **kwargs)
+
+
+    # def save(self, *args, **kwargs):
+    #     if self.tipoTransacao in ['saque', 'transferencia']:
+    #         if self.conta.saldo < self.valor:
+    #             self.status = 'cancelada'
+    #             super().save(*args, **kwargs)
+    #             return
+
+    #     if self.tipoTransacao == 'saque':
+    #         self.conta.sacar(self.valor)
+    #     else:
+    #         if self.tipoTransacao == 'deposito':
+    #             self.conta.depositar(self.valor)
+    #         else:
+
+    #             if self.tipoTransacao == 'transferencia' and self.contaDestino:
+    #                 # print(self.contaDestino)
+    #                 # self.conta.transferir(self.contaDestino, self.valor)
+    #                 self.conta.sacar(self.valor)
+    #                 self.contaDestino.depositar(self.valor)
+                    
+
+    #     self.status = 'concluida'
+    #     super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Transação')
@@ -173,6 +235,8 @@ class Transacao(models.Model):
 
     def __str__(self):
         return f'Transação {self.numeroTransacao}: {self.tipoTransacao} de {self.valor}'
+
+###################################################################################
 
 class Cartao(models.Model):
     BANDEIRAS = [
@@ -221,14 +285,11 @@ class Cartao(models.Model):
 
 
 ##########################################################################################
-# class Notificacao(models.Model):
-#     conta = models.ForeignKey(Conta, on_delete=models.CASCADE, default=1)
-#     dataEnvio = models.DateTimeField(auto_now_add=True)
-#     mensagem = models.TextField()
 
-#     class Meta:
-#         verbose_name = _('Notificação')
-#         verbose_name_plural = _('Notificações')
+class Notificacao(models.Model):
+    conta = models.ForeignKey(Conta, on_delete=models.CASCADE, related_name='notificacoes')
+    mensagem = models.TextField(_('Mensagem'))
+    dataHora = models.DateTimeField(_('Data e Hora'), auto_now_add=True)
 
-#     def __str__(self):
-#         return f'{self.tipoNotificacao} - {self.dataEnvio}'
+    # def __str__(self):
+    #     return f'Notificação para {self.conta.cliente.nome}: {self.mensagem}'
