@@ -1,19 +1,27 @@
-from django.contrib import admin
-
 # Register your models here.
 from django.contrib import admin
 
 from .models import Cliente, Agencia, Conta, Transacao, Cartao, Endereco, Notificacao
 
 
-@admin.register(Endereco)
 class EnderecoAdmin(admin.ModelAdmin):
-    list_display = ('cep', 'rua', 'bairro', 'cidade', 'estado', 'numero', 'complemento')
+    list_display = ('cliente', 'cep', 'rua', 'bairro', 'cidade', 'estado', 'numero', 'complemento')
+    search_fields = ('cliente__nome', 'cep', 'rua', 'bairro', 'cidade')  # permite buscar pelos campos
+    list_filter = ('estado', 'cidade')  # adiciona filtros na barra lateral
     
-@admin.register(Cliente)
-class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('CPF', 'nome', 'email', 'telefone','endereco', 'dataCadastro', 'foto')
+class EnderecoInline(admin.TabularInline):
+    
+    model = Endereco
+    extra = 1  # Número de formulários em branco para adicionar novos endereços
 
+class ClienteAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'email', 'telefone', 'listar_enderecos', 'foto')  # Adicione o método aqui
+    inlines = [EnderecoInline]  # Adiciona a possibilidade de editar endereços no formulário do cliente
+
+admin.site.register(Cliente, ClienteAdmin)
+admin.site.register(Endereco, EnderecoAdmin)
+
+    
 @admin.register(Agencia)
 class AgenciaAdmin(admin.ModelAdmin):
     list_display = ('nomeagencia', 'numeroagencia', 'endereco')
@@ -30,6 +38,7 @@ class ContaAdmin(admin.ModelAdmin):
 @admin.register(Transacao)
 class TransacaoAdmin(admin.ModelAdmin):
     list_display = ('numeroTransacao', 'conta', 'tipoTransacao', 'valor', 'dataHora', 'status', 'contaDestino')
+    list_filter = ('tipoTransacao', 'status')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -38,6 +47,7 @@ class TransacaoAdmin(admin.ModelAdmin):
 @admin.register(Cartao)
 class CartaoAdmin(admin.ModelAdmin):
     list_display = ('numeroCartao', 'bandeira', 'cvv', 'dataExpiracao', 'conta')
+    list_filter = ('bandeira', 'conta')
 
 
 @admin.register(Notificacao)

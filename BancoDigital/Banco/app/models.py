@@ -14,6 +14,7 @@ def get_file_path(_instance, filename):
 
 # Models
 
+
 class Endereco(models.Model):
     ESTADO_CHOICES = [
         ('AC', 'AC'), ('AL', 'AL'), ('AP', 'AP'), ('AM', 'AM'), ('BA', 'BA'),
@@ -24,24 +25,14 @@ class Endereco(models.Model):
         ('SE', 'SE'), ('TO', 'TO'),
     ]
     
+    cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE, related_name='enderecos', null=True, blank=True)
     cep = models.CharField(_('CEP'), max_length=8)
     rua = models.CharField(_('Rua'), max_length=100)
     bairro = models.CharField(_('Bairro'), max_length=50)
     cidade = models.CharField(_('Cidade'), max_length=50)
     estado = models.CharField(_('Estado'), max_length=2, choices=ESTADO_CHOICES)
     numero = models.CharField(_('Número'), max_length=10)
-    complemento = models.CharField(_('Complemento'), max_length=50)
-    
-    def preencher_endereco_por_cep(self):
-        if self.cep:
-            url = f"https://viacep.com.br/ws/{self.cep}/json/"
-            response = requests.get(url)
-            if response.status_code == 200:
-                dados = response.json()
-                self.rua = dados.get('logradouro', '')
-                self.bairro = dados.get('bairro', '')
-                self.cidade = dados.get('localidade', '')
-                self.estado = dados.get('uf', '')
+    complemento = models.CharField(_('Complemento'), max_length=50, null=True, blank=True)
     
     class Meta:
         verbose_name = _('Endereço')
@@ -49,19 +40,20 @@ class Endereco(models.Model):
 
     def __str__(self):
         return f'{self.bairro} - {self.rua} - {self.numero}'
+    
+    
+    ###################################################################################
 
-###################################################################################
 
 class Cliente(models.Model):
     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
-    nome = models.CharField(_('Nome'), max_length=100)
-    email = models.EmailField(_('E-Mail'), blank=True, null=True)
-    telefone = models.CharField(_('Telefone'), max_length=15, blank=True, null=True)
-    endereco = models.ForeignKey(Endereco, on_delete=models.CASCADE)
+    nome = models.CharField(_('Nome'), max_length=100, null=False, blank=False)
+    email = models.EmailField(_('E-Mail'), unique=True, null=False, blank=False, default='')
+    telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
     senha = models.CharField(_('Senha'), max_length=255)
     dataCadastro = models.DateTimeField(auto_now_add=True)
     foto = StdImageField(_('Foto'), null=True, blank=True, upload_to=get_file_path, variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
-    
+
     class Meta:
         verbose_name = _('Cliente')
         verbose_name_plural = _('Clientes')
@@ -69,7 +61,13 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nome
 
+    def listar_enderecos(self):
+        return ", ".join(str(endereco) for endereco in self.enderecos.all())
+    listar_enderecos.short_description = 'Endereços' 
+    
+    
 ###################################################################################
+
 
 class Agencia(models.Model):
     nomeagencia = models.CharField(_('Nome da Agência'), max_length=100)
@@ -140,7 +138,9 @@ class Conta(models.Model):
     def __str__(self):
         return f'{self.cliente.nome} - {self.saldo}'
 
+
 ###################################################################################
+
 
 class Transacao(models.Model):
     numeroTransacao = models.AutoField(_('Número da Transação'), primary_key=True)
@@ -162,47 +162,43 @@ class Transacao(models.Model):
             self.conta.sacar(self.valor)
             self.status = 'concluida'
             super().save(*args, **kwargs)
-            # Criar notificação para saque
             Notificacao.objects.create(
                 conta=self.conta,
                 mensagem=f"Saque no valor de: R$:{self.valor} de {self.contaDestino} realizado com sucesso para transferência.")
             
-        elif self.tipoTransacao == 'deposito':
-            self.conta.depositar(self.valor)
-            self.status = 'concluida'
+        else:
+            if self.tipoTransacao == 'deposito':
+                self.conta.depositar(self.valor)
+                self.status = 'concluida'
+                super().save(*args, **kwargs)
+                
+                Notificacao.objects.create(
+                    conta=self.conta,
+                    mensagem=f"Depósito no valor de: R$:{self.valor} de {self.contaDestino} realizado com sucesso.")
+                
+            else:
+                if self.tipoTransacao == 'transferencia' and self.contaDestino:
+                    saque = Transacao(
+                        conta=self.conta,
+                        contaDestino=self.conta,
+                        valor=self.valor,
+                        tipoTransacao='saque',
+                        status='concluida',
+                        dataHora=self.dataHora,)
+                    saque.save()
+
+                    deposito = Transacao(
+                        conta=self.contaDestino,
+                        contaDestino=self.contaDestino,
+                        valor=self.valor,
+                        tipoTransacao='deposito',
+                        status='concluida',
+                        dataHora=self.dataHora,)
+                    deposito.save()
+
+                    self.status = 'concluida'
+
             super().save(*args, **kwargs)
-            
-            # Criar notificação para depósito
-            Notificacao.objects.create(
-                conta=self.conta,
-                mensagem=f"Depósito no valor de: R$:{self.valor} de {self.contaDestino} realizado com sucesso.")
-            
-        elif self.tipoTransacao == 'transferencia' and self.contaDestino:
-            # Criar transação de saque
-            saque = Transacao(
-                conta=self.conta,
-                contaDestino=self.conta,
-                valor=self.valor,
-                tipoTransacao='saque',
-                status='concluida',
-                dataHora=self.dataHora,)
-            saque.save()
-
-            # Criar transação de depósito na conta destino
-            deposito = Transacao(
-                conta=self.contaDestino,
-                contaDestino=self.contaDestino,
-                valor=self.valor,
-                tipoTransacao='deposito',
-                status='concluida',
-                dataHora=self.dataHora,)
-            deposito.save()
-
-            
-            # Marcar a transação original como transferência concluída
-            self.status = 'concluida'
-
-        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Transação')
@@ -211,7 +207,9 @@ class Transacao(models.Model):
     def __str__(self):
         return f'Transação {self.numeroTransacao}: {self.tipoTransacao} de {self.valor}'
 
+
 ###################################################################################
+
 
 class Cartao(models.Model):
     BANDEIRAS = [
@@ -260,6 +258,7 @@ class Cartao(models.Model):
 
 
 ##########################################################################################
+
 
 class Notificacao(models.Model):
     conta = models.ForeignKey(Conta, on_delete=models.CASCADE, related_name='notificacoes')
