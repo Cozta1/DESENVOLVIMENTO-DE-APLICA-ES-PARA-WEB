@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Bem-vindo à Home</h1>
+    
+    {% if user %}
+        <p>Olá, <strong>{{ user.nome }}</strong>!</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Data de cadastro: {{ user.dataCadastro|date:"d/m/Y" }}</p>
+        <p>Último login: {{ user.last_login|date:"d/m/Y H:i" }}</p>
+
+      
+        <!-- Botão para Gerenciar Conta -->
+        <a href="{% url 'gerenciar_conta' %}">
+            <button>Gerenciar Conta</button>
+        </a>  
+        
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Sair</button>
+        </form>
+        
+    {% else %}
+        <p>Você não está logado. <a href="{% url 'login' %}">Faça login aqui</a>.</p>
+    {% endif %}
+</body>
+</html>

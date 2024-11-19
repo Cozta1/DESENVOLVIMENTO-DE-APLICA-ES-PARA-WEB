@@ -50,27 +50,36 @@ from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from stdimage.models import StdImageField
 from django.utils.translation import gettext_lazy as _
-    
-class ClienteManager(BaseUserManager):
-    def create_user(self, CPF, nome, email, telefone, senha, **extra_fields):
-        if not CPF:
-            raise ValueError("O CPF deve ser fornecido")
-        cliente = self.model(CPF=CPF, nome=nome, email=email, telefone=telefone, **extra_fields)
-        cliente.set_password(senha)  # Criptografar a senha
-        cliente.save(using=self._db)
-        return cliente
 
-    def create_superuser(self, CPF, nome, email, telefone, senha, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-        return self.create_user(CPF, nome, email, telefone, senha, **extra_fields)
+class ClienteManager(BaseUserManager):
+    def create_user(self, cpf, nome, email, telefone, senha=None, **extra_fields):
+        if not email:
+            raise ValueError('O email deve ser fornecido')
+        email = self.normalize_email(email)
+        user = self.model(email=email, cpf=cpf, nome=nome, telefone=telefone, **extra_fields)
+        user.set_password(senha)  # Criptografa a senha antes de salvar
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, cpf, nome, email, telefone, senha=None, **extra_fields):
+        """
+        Cria e retorna um superusuário com um CPF, nome, email, telefone e senha fornecidos.
+        """
+        # Configura os campos necessários para o superusuário
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if senha is None:
+            raise ValueError('Superusuários precisam de uma senha')
+
+        return self.create_user(cpf, nome, email, telefone, senha, **extra_fields)
+
 
 class Cliente(AbstractBaseUser):
     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
     nome = models.CharField(_('Nome'), max_length=100, null=False, blank=False)
     email = models.EmailField(_('E-Mail'), unique=True, null=False, blank=False, default='')
     telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
-    senha = models.CharField(_('Senha'), max_length=255)
     last_login = models.DateTimeField(_('Último login'), auto_now=True)
     dataCadastro = models.DateTimeField(auto_now_add=True)
     foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
@@ -91,11 +100,11 @@ class Cliente(AbstractBaseUser):
 
     def set_password(self, raw_password):
         """Método para criptografar a senha"""
-        self.senha = make_password(raw_password)
+        self.password = make_password(raw_password)  # 'password' é o campo correto no modelo base
 
     def check_password(self, raw_password):
         """Método para verificar a senha"""
-        return check_password(raw_password, self.senha)
+        return check_password(raw_password, self.password)  # 'password' é o campo correto no modelo base
 
     class Meta:
         verbose_name = _('Cliente')
@@ -104,7 +113,6 @@ class Cliente(AbstractBaseUser):
     def listar_enderecos(self):
         return ", ".join(str(endereco) for endereco in self.enderecos.all())
     listar_enderecos.short_description = 'Endereços'
-    
 
 # class Cliente(models.Model):
 #     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)

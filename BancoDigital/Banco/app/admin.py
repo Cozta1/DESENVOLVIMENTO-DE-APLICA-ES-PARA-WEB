@@ -22,6 +22,7 @@ class ClienteAdmin(admin.ModelAdmin):
     list_display = ('nome', 'email', 'telefone', 'listar_enderecos', 'foto', 'last_login', 'is_active', 'is_staff')
     search_fields = ('nome', 'email', 'CPF')
     list_filter = ('is_active', 'is_staff')
+    ordering = ('nome',)
     
     # Inline para adicionar endereços no formulário de cliente
     inlines = [EnderecoInline]

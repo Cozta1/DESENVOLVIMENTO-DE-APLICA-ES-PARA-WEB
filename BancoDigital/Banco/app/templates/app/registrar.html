@@ -9,17 +9,18 @@
     <h1>Cadastro de Cliente</h1>
 
     <!-- Exibindo mensagens de erro ou sucesso -->
-    {% if messages %}
+    {% comment %} {% if messages %}
         {% for message in messages %}
             <div class="alert">{{ message }}</div>
         {% endfor %}
-    {% endif %}
+    {% endif %} {% endcomment %}
 
     <!-- Exibindo o formulário de cadastro -->
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}  <!-- Exibe o formulário -->
         <button type="submit">Cadastrar</button>
+        <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login</a></p>
     </form>
 </body>
 </html>
