@@ -91,7 +91,7 @@ DATABASES = {
 
         'USER': 'postgres',
 
-        'PASSWORD': 'root',
+        'PASSWORD': '123321',
 
         'HOST': 'localhost',
 
@@ -169,5 +169,3 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # substitua pela URL do seu frontend se necessário
 ]
-
-AUTH_USER_MODEL = 'app.Cliente'

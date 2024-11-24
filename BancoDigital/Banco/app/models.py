@@ -7,8 +7,6 @@ from django.utils.translation import gettext_lazy as _
 import random
 from datetime import date, timedelta
 
-from django.contrib.auth.hashers import make_password
-
 def get_file_path(_instance, filename):
     ext = filename.split('.')[-1]
     filename = f'{uuid.uuid4()}.{ext}'
@@ -45,106 +43,29 @@ class Endereco(models.Model):
     
     
     ###################################################################################
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.db import models
-from django.contrib.auth.hashers import make_password, check_password
-from stdimage.models import StdImageField
-from django.utils.translation import gettext_lazy as _
-
-class ClienteManager(BaseUserManager):
-    def create_user(self, cpf, nome, email, telefone, senha=None, **extra_fields):
-        if not email:
-            raise ValueError('O email deve ser fornecido')
-        email = self.normalize_email(email)
-        user = self.model(email=email, cpf=cpf, nome=nome, telefone=telefone, **extra_fields)
-        user.set_password(senha)  # Criptografa a senha antes de salvar
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, cpf, nome, email, telefone, senha=None, **extra_fields):
-        """
-        Cria e retorna um superusuário com um CPF, nome, email, telefone e senha fornecidos.
-        """
-        # Configura os campos necessários para o superusuário
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if senha is None:
-            raise ValueError('Superusuários precisam de uma senha')
-
-        return self.create_user(cpf, nome, email, telefone, senha, **extra_fields)
 
 
-class Cliente(AbstractBaseUser):
+class Cliente(models.Model):
     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
     nome = models.CharField(_('Nome'), max_length=100, null=False, blank=False)
     email = models.EmailField(_('E-Mail'), unique=True, null=False, blank=False, default='')
     telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
-    last_login = models.DateTimeField(_('Último login'), auto_now=True)
+    senha = models.CharField(_('Senha'), max_length=255)
     dataCadastro = models.DateTimeField(auto_now_add=True)
-    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
-
-    # Campos de autenticação e controle de permissão
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-
-    # Métodos necessários para autenticação do Django
-    USERNAME_FIELD = 'CPF'  # Campo para login
-    REQUIRED_FIELDS = ['nome', 'email', 'telefone']  # Campos obrigatórios no cadastro
-
-    objects = ClienteManager()
-
-    def __str__(self):
-        return self.nome
-
-    def set_password(self, raw_password):
-        """Método para criptografar a senha"""
-        self.password = make_password(raw_password)  # 'password' é o campo correto no modelo base
-
-    def check_password(self, raw_password):
-        """Método para verificar a senha"""
-        return check_password(raw_password, self.password)  # 'password' é o campo correto no modelo base
+    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to=get_file_path, variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
 
     class Meta:
         verbose_name = _('Cliente')
         verbose_name_plural = _('Clientes')
 
+    def __str__(self):
+        return self.nome
+
     def listar_enderecos(self):
         return ", ".join(str(endereco) for endereco in self.enderecos.all())
-    listar_enderecos.short_description = 'Endereços'
-
-# class Cliente(models.Model):
-#     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
-#     nome = models.CharField(_('Nome'), max_length=100, null=False, blank=False)
-#     email = models.EmailField(_('E-Mail'), unique=True, null=False, blank=False, default='')
-#     telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
-#     senha = models.CharField(_('Senha'), max_length=25)
-#     dataCadastro = models.DateTimeField(auto_now_add=True)
-#     foto = StdImageField(_('Foto'), null=True, blank=True, upload_to=get_file_path, variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
-
-#     class Meta:
-#         verbose_name = _('Cliente')
-#         verbose_name_plural = _('Clientes')
-
-#     def __str__(self):
-#         return self.nome
-
-#     def listar_enderecos(self):
-#         return ", ".join(str(endereco) for endereco in self.enderecos.all())
-#     listar_enderecos.short_description = 'Endereços' 
+    listar_enderecos.short_description = 'Endereços' 
     
     
-#     def set_password(self, raw_password):
-#         """Método para criptografar a senha"""
-#         self.senha = make_password(raw_password)
-
-#     def check_password(self, raw_password):
-#         """Método para verificar a senha"""
-#         from django.contrib.auth.hashers import check_password
-#         return check_password(raw_password, self.senha)
-
-
 ###################################################################################
 
 

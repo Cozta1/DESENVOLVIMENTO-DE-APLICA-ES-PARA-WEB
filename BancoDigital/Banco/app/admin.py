@@ -1,63 +1,25 @@
 # Register your models here.
-from django import forms
 from django.contrib import admin
 
 from .models import Cliente, Agencia, Conta, Transacao, Cartao, Endereco, Notificacao
 
 
-
+class EnderecoAdmin(admin.ModelAdmin):
+    list_display = ('cliente', 'cep', 'rua', 'bairro', 'cidade', 'estado', 'numero', 'complemento')
+    search_fields = ('cliente__nome', 'cep', 'rua', 'bairro', 'cidade')  # permite buscar pelos campos
+    list_filter = ('cliente', 'estado', 'cidade')  # adiciona filtros na barra lateral
+    
 class EnderecoInline(admin.TabularInline):
+    
     model = Endereco
     extra = 1  # Número de formulários em branco para adicionar novos endereços
 
-# Admin para Endereco
-class EnderecoAdmin(admin.ModelAdmin):
-    # Atualizando list_display para corresponder aos campos do modelo
-    list_display = ('rua', 'bairro', 'cidade', 'cliente')  # Alterado 'logradouro' para 'rua'
-    search_fields = ('rua', 'bairro', 'cliente__nome')  # Permitindo buscar pelo nome do cliente
-    list_filter = ('cliente',)  # Filtrando por cliente
-
-# Admin para Cliente
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'email', 'telefone', 'listar_enderecos', 'foto', 'last_login', 'is_active', 'is_staff')
-    search_fields = ('nome', 'email', 'CPF')
-    list_filter = ('is_active', 'is_staff')
-    ordering = ('nome',)
-    
-    # Inline para adicionar endereços no formulário de cliente
-    inlines = [EnderecoInline]
-    
-    # Definindo os campos no formulário de edição
-    fieldsets = (
-        (None, {
-            'fields': ('nome', 'email', 'telefone', 'CPF', 'foto')
-        }),
-        ('Segurança', {
-            'fields': ('senha', 'is_active', 'is_staff', 'last_login')
-        }),
-    )
-    readonly_fields = ('last_login',)  # 'last_login' deve ser somente leitura
+    list_display = ('nome', 'email', 'telefone', 'listar_enderecos', 'foto')  # Adicione o método aqui
+    inlines = [EnderecoInline]  # Adiciona a possibilidade de editar endereços no formulário do cliente
 
-    # Sobrescreve o método get_form para ocultar o campo 'senha' se o cliente já existir
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if obj:  # Se for um cliente já existente, escondemos o campo 'senha' no formulário
-            form.base_fields['senha'].widget = forms.HiddenInput()
-        return form
-
-# Registro dos modelos no admin
-# Verifique se o modelo já foi registrado antes de registrar novamente
-try:
-    admin.site.unregister(Endereco)
-except admin.sites.NotRegistered:
-    pass
-
-# Registrando o modelo Endereco e Cliente no admin
-admin.site.register(Endereco, EnderecoAdmin)
 admin.site.register(Cliente, ClienteAdmin)
-
-
-
+admin.site.register(Endereco, EnderecoAdmin)
 
     
 @admin.register(Agencia)
@@ -91,6 +53,3 @@ class CartaoAdmin(admin.ModelAdmin):
 @admin.register(Notificacao)
 class NotificacaoAdmin(admin.ModelAdmin):
     list_display = ('conta', 'mensagem', 'dataHora')
-
-
-
