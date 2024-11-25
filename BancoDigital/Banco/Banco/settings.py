@@ -91,11 +91,13 @@ DATABASES = {
 
         'USER': 'postgres',
 
-        'PASSWORD': '123321',
+        'PASSWORD': 'root',
 
         'HOST': 'localhost',
 
         'PORT': '5432',
+        
+        'client_encoding': 'UTF8',
 
     }
 
@@ -164,8 +166,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # substitua pela URL do seu frontend se necessário
+AUTH_USER_MODEL = 'app.Cliente'
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Esse é o backend padrão para autenticação
 ]

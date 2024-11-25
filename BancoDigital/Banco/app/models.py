@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 import random
 from datetime import date, timedelta
 
+from django.contrib.auth.models import AbstractUser
+
 def get_file_path(_instance, filename):
     ext = filename.split('.')[-1]
     filename = f'{uuid.uuid4()}.{ext}'
@@ -45,21 +47,24 @@ class Endereco(models.Model):
     ###################################################################################
 
 
-class Cliente(models.Model):
+class Cliente(AbstractUser):
     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
-    nome = models.CharField(_('Nome'), max_length=100, null=False, blank=False)
-    email = models.EmailField(_('E-Mail'), unique=True, null=False, blank=False, default='')
     telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
-    senha = models.CharField(_('Senha'), max_length=255)
-    dataCadastro = models.DateTimeField(auto_now_add=True)
-    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to=get_file_path, variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
+    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
+
+
+    first_name = models.CharField(_('Nome'),max_length=150, blank=False, null=False)
+    last_name = models.CharField(_('Sobrenome'),max_length=150, blank=False, null=False)
+    email = models.EmailField(_('E-Mail'),unique=True, blank=False, null=False)
+
+    USERNAME_FIELD = 'CPF'
 
     class Meta:
         verbose_name = _('Cliente')
         verbose_name_plural = _('Clientes')
 
     def __str__(self):
-        return self.nome
+        return self.username
 
     def listar_enderecos(self):
         return ", ".join(str(endereco) for endereco in self.enderecos.all())

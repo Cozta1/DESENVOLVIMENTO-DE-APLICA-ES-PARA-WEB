@@ -15,11 +15,12 @@ class EnderecoInline(admin.TabularInline):
     extra = 1  # Número de formulários em branco para adicionar novos endereços
 
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'email', 'telefone', 'listar_enderecos', 'foto')  # Adicione o método aqui
+    list_display = ('CPF', 'first_name','last_name', 'email', 'telefone', 'listar_enderecos', 'foto')  # Adicione o método aqui
     inlines = [EnderecoInline]  # Adiciona a possibilidade de editar endereços no formulário do cliente
 
 admin.site.register(Cliente, ClienteAdmin)
 admin.site.register(Endereco, EnderecoAdmin)
+    
 
     
 @admin.register(Agencia)

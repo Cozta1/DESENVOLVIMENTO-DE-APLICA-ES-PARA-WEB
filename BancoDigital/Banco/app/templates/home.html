@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Página Inicial</h1>
+        {% if user.is_authenticated %}
+            <p>Olá, {{ user.get_full_name }}! Bem-vindo de volta.</p>
+            <a href="{% url 'logout' %}" class="button">Sair</a>
+        {% else %}
+            <p>Bem-vindo ao nosso site! Por favor, <a href="{% url 'login' %}">faça login</a> para acessar sua conta.</p>
+            <a href="{% url 'registro' %}" class="button">Cadastre-se</a>
+        {% endif %}
+    </div>
+</body>
+</html>
