@@ -1,10 +1,12 @@
+<!-- cadastrar_endereco.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
+    <title>Cadastro de Endereço</title>
     <style>
+        /* Estilos para o formulário */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -23,8 +25,16 @@
         h1 {
             color: #333;
         }
-        p {
-            font-size: 18px;
+        form {
+            text-align: left;
+        }
+        input, select {
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
         }
         .button {
             display: inline-block;
@@ -44,17 +54,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>Página Inicial</h1>
-        {% if user.is_authenticated %}
-            <p>Olá, {{ user.get_full_name }}! Bem-vindo de volta.</p>
-            <p><a href="{% url 'perfil' %}" class="button">Meu Perfil</a></p>   
-            <a href="{% url 'conta' %}" class="button">Minha Conta</a> <!-- Botão para acessar a conta -->
-            <a href="{% url 'logout' %}" class="button">Sair</a>
-        {% else %}
-            
-            <p>Bem-vindo ao nosso site! Por favor, <a href="{% url 'login' %}">faça login</a> para acessar sua conta.</p>
-            <a href="{% url 'registro' %}" class="button">Cadastre-se</a>
-        {% endif %}
+        <h1>Cadastro de Endereço</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="button">Salvar Endereço</button>
+        </form>
+        <br>
+        <a href="{% url 'perfil' %}" class="button">Voltar ao Perfil</a>
     </div>
 </body>
 </html>

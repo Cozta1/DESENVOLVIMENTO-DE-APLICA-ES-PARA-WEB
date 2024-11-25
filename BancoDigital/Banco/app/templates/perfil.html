@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <style>
+        /* Estilos para o perfil */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profile-info img {
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+        .profile-info div {
+            font-size: 18px;
+        }
+        .enderecos-lista {
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Perfil do Usuário</h1>
+        
+        <div class="profile-info">
+            <!-- Exibe a foto do cliente, ou um placeholder -->
+            {% if cliente.foto %}
+                <img src="{{ cliente.foto.url }}" alt="Foto de {{ cliente.get_full_name }}">
+            {% else %}
+                <img src="https://via.placeholder.com/120" alt="Foto de {{ cliente.get_full_name }}">
+            {% endif %}
+            
+            <div>
+                <p><strong>Nome:</strong> {{ cliente.first_name }} {{ cliente.last_name }}</p>
+                <p><strong>Email:</strong> {{ cliente.email }}</p>
+                <p><strong>CPF:</strong> {{ cliente.CPF }}</p>
+            </div>
+        </div>
+
+        <h3>Contas</h3>
+        {% if contas %}
+            <ul>
+                {% for conta in contas %}
+                    <li>
+                        <p><strong>Conta:</strong> {{ conta.numero_conta }} - <strong>Agência:</strong> {{ conta.agencia.nomeagencia }} </p>
+                        <form action="{% url 'selecionar_conta' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" name="conta_id" value="{{ conta.id }}" class="button">Selecionar Conta</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Você ainda não tem nenhuma conta.</p>
+        {% endif %}
+
+        <h3>Criar Nova Conta</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="agencia">Escolha uma Agência:</label>
+            <select name="agencia" id="agencia">
+                {% for agencia in agencias %}
+                    <option value="{{ agencia.id }}">{{ agencia.nomeagencia }} - {{ agencia.numeroagencia }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="button">Criar Nova Conta</button>
+        </form>
+
+        <br>
+        <a href="{% url 'home' %}" class="button">Home</a>
+    </div>
+</body>
+</html>

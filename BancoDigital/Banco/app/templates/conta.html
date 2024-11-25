@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .transaction-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .transaction-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .transaction-buttons button:hover {
+            background-color: #218838;
+        }
+        .transaction-form {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .transaction-form input {
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .photo-container {
+            margin-right: 15px;
+        }
+        .photo-container img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+        .placeholder {
+            background-color: #f0f0f0;
+            color: #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            font-size: 40px;
+            font-weight: bold;
+        }
+        .name-container {
+            text-align: left;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .transaction-buttons button.active {
+            background-color: #0069d9;
+        }
+    </style>
+    <script>
+        function showTransactionForm(transactionType) {
+            // Esconde todos os formulários de transação
+            const forms = document.querySelectorAll('.transaction-form');
+            forms.forEach(form => form.style.display = 'none');
+
+            // Mostra o formulário correspondente
+            const selectedForm = document.getElementById(transactionType + '-form');
+            if (selectedForm) {
+                selectedForm.style.display = 'block';
+            }
+
+            // Altera o estilo dos botões
+            const buttons = document.querySelectorAll('.transaction-buttons button');
+            buttons.forEach(button => button.classList.remove('active'));
+            document.getElementById(transactionType + '-button').classList.add('active');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Minha Conta</h1>
+
+        <!-- Exibir Foto e Nome do Cliente -->
+        <div class="profile-header">
+            <div class="photo-container">
+                {% if user.foto %}
+                    <img src="{{ user.foto.url }}" alt="Foto do Usuário">
+                {% else %}
+                    <div class="placeholder">A</div> <!-- Placeholder com a inicial do nome -->
+                {% endif %}
+            </div>
+            <div class="name-container">
+                <p>{{ user.first_name }} {{ user.last_name }}</p>
+            </div>
+        </div>
+
+        <!-- Botões de transações -->
+        <div class="transaction-buttons">
+            <button id="saque-button" onclick="showTransactionForm('saque')">Saque</button>
+            <button id="deposito-button" onclick="showTransactionForm('deposito')">Depósito</button>
+            <button id="transferencia-button" onclick="showTransactionForm('transferencia')">Transferência</button>
+        </div>
+
+        <!-- Formulários de transações -->
+        <form method="post" id="saque-form" class="transaction-form">
+            {% csrf_token %}
+            <h3>Saque</h3>
+            <label for="saque">Valor para Saque:</label>
+            <input type="number" name="saque" id="saque" placeholder="Digite o valor do saque" required>
+        </form>
+
+        <form method="post" id="deposito-form" class="transaction-form">
+            {% csrf_token %}
+            <h3>Depósito</h3>
+            <label for="deposito">Valor para Depósito:</label>
+            <input type="number" name="deposito" id="deposito" placeholder="Digite o valor do depósito" required>
+        </form>
+
+        <form method="post" id="transferencia-form" class="transaction-form">
+            {% csrf_token %}
+            <h3>Transferência</h3>
+            <label for="transferencia">Conta Destino:</label>
+            <input type="text" name="conta_destino" id="conta_destino" placeholder="Digite a conta destino" required>
+            <label for="valor_transferencia">Valor para Transferência:</label>
+            <input type="number" name="valor_transferencia" id="valor_transferencia" placeholder="Digite o valor da transferência" required>
+        </form>
+
+        <!-- Botão para home -->
+        <p><a href="{% url 'perfil' %}" class="button">Meu Perfil</a></p>
+        <a href="{% url 'home' %}" class="button">Home</a>
+    </div>
+</body>
+</html>
