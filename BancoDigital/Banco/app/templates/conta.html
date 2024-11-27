@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Conta</title>
+    <title>Conta</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
             padding: 0;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 50px auto;
             background: white;
             padding: 20px;
@@ -105,35 +105,19 @@
         .transaction-buttons button.active {
             background-color: #0069d9;
         }
-    </style>
-    <script>
-        function showTransactionForm(transactionType) {
-            // Esconde todos os formulários de transação
-            const forms = document.querySelectorAll('.transaction-form');
-            forms.forEach(form => form.style.display = 'none');
-
-            // Mostra o formulário correspondente
-            const selectedForm = document.getElementById(transactionType + '-form');
-            if (selectedForm) {
-                selectedForm.style.display = 'block';
-            }
-
-            // Altera o estilo dos botões
-            const buttons = document.querySelectorAll('.transaction-buttons button');
-            buttons.forEach(button => button.classList.remove('active'));
-            document.getElementById(transactionType + '-button').classList.add('active');
+        .cards-section, .enderecos-section {
+            margin-top: 40px;
+            text-align: left;
         }
-    </script>
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Minha Conta</h1>
-
-        <!-- Exibir Foto e Nome do Cliente -->
+        
         <div class="profile-header">
             <div class="photo-container">
                 {% if user.foto %}
-                    <img src="{{ user.foto.url }}" alt="Foto do Usuário">
+                <a href="{% url 'perfil' %}"><img src="{{ user.foto.url }}" alt="Foto do Usuário"></a>
                 {% else %}
                     <div class="placeholder">A</div> <!-- Placeholder com a inicial do nome -->
                 {% endif %}
@@ -142,40 +126,28 @@
                 <p>{{ user.first_name }} {{ user.last_name }}</p>
             </div>
         </div>
+        <h1>Operações Bancárias</h1>
 
-        <!-- Botões de transações -->
-        <div class="transaction-buttons">
-            <button id="saque-button" onclick="showTransactionForm('saque')">Saque</button>
-            <button id="deposito-button" onclick="showTransactionForm('deposito')">Depósito</button>
-            <button id="transferencia-button" onclick="showTransactionForm('transferencia')">Transferência</button>
+        <div class="transaction-button">
+            <a href="{% url 'transacao' %}" class="button">Realizar Transação</a>
         </div>
 
-        <!-- Formulários de transações -->
-        <form method="post" id="saque-form" class="transaction-form">
-            {% csrf_token %}
-            <h3>Saque</h3>
-            <label for="saque">Valor para Saque:</label>
-            <input type="number" name="saque" id="saque" placeholder="Digite o valor do saque" required>
-        </form>
+        <!-- Seção de Cartões -->
+        <div class="cards-section">
+            <h3>Meus Cartões</h3>
+            {% if cartoes %}
+                <ul>
+                    {% for cartao in cartoes %}
+                        <li>{{ cartao.bandeira }} - {{ cartao.numeroCartao }} - Validade: {{ cartao.dataExpiracao }} - CVV: {{ cartao.cvv}}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Você ainda não tem nenhum cartão.</p>
+            {% endif %}
+            <a href="{% url 'solicitar_cartao' %}" class="button">Solicitar Novo Cartão</a>
+        </div>
 
-        <form method="post" id="deposito-form" class="transaction-form">
-            {% csrf_token %}
-            <h3>Depósito</h3>
-            <label for="deposito">Valor para Depósito:</label>
-            <input type="number" name="deposito" id="deposito" placeholder="Digite o valor do depósito" required>
-        </form>
-
-        <form method="post" id="transferencia-form" class="transaction-form">
-            {% csrf_token %}
-            <h3>Transferência</h3>
-            <label for="transferencia">Conta Destino:</label>
-            <input type="text" name="conta_destino" id="conta_destino" placeholder="Digite a conta destino" required>
-            <label for="valor_transferencia">Valor para Transferência:</label>
-            <input type="number" name="valor_transferencia" id="valor_transferencia" placeholder="Digite o valor da transferência" required>
-        </form>
-
-        <!-- Botão para home -->
-        <p><a href="{% url 'perfil' %}" class="button">Meu Perfil</a></p>
+        <!-- Botão para voltar ao perfil -->
         <a href="{% url 'home' %}" class="button">Home</a>
     </div>
 </body>

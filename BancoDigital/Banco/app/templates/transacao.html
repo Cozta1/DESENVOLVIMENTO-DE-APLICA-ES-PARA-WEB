@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Transação</title>
+    <style>
+        /* Estilos semelhantes aos do arquivo conta.html, você pode customizar */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .accounts-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .accounts-list li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Realizar Transação</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <label for="tipo_transacao">Tipo de Transação:</label>
+            <select name="tipo_transacao" id="tipo_transacao" required>
+                <option value="deposito">Depósito</option>
+                <option value="saque">Saque</option>
+                <option value="transferencia">Transferência</option>
+            </select>
+
+            <br><br>
+
+            <label for="valor">Valor:</label>
+            <input type="number" name="valor" id="valor" step="0.01" required>
+
+            <br><br>
+
+            <div id="conta_destino_section" style="display: none;">
+                <label for="conta_destino">Conta Destino (para Transferência):</label>
+                <select name="conta_destino" id="conta_destino" required>
+                    {% for conta in contas_cliente %}
+                        <option value="{{ conta.id }}">{{ conta.numero }} - Saldo: R$ {{ conta.saldo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <br><br>
+
+            <button type="submit" class="button">Realizar Transação</button>
+        </form>
+
+        <a href="{% url 'conta' %}" class="button">Voltar para Conta</a>
+    </div>
+
+    <script>
+        // Mostrar o campo de conta destino apenas para transferências
+        document.getElementById('tipo_transacao').addEventListener('change', function() {
+            var tipo = this.value;
+            if (tipo == 'transferencia') {
+                document.getElementById('conta_destino_section').style.display = 'block';
+            } else {
+                document.getElementById('conta_destino_section').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -40,13 +40,60 @@
         .button:hover {
             background-color: #0056b3;
         }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .photo-container {
+            margin-right: 15px;
+        }
+        .photo-container img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+        .placeholder {
+            background-color: #f0f0f0;
+            color: #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            font-size: 40px;
+            font-weight: bold;
+        }
+        .name-container {
+            text-align: left;
+            font-size: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Página Inicial</h1>
+        
         {% if user.is_authenticated %}
-            <p>Olá, {{ user.get_full_name }}! Bem-vindo de volta.</p>
+
+        <div class="profile-header">
+            <div class="photo-container">
+                {% if user.foto %}
+                <a href="{% url 'perfil' %}"><img src="{{ user.foto.url }}" alt="Foto do Usuário"></a>
+                {% else %}
+                    <div class="placeholder">A</div> <!-- Placeholder com a inicial do nome -->
+                {% endif %}
+            </div>
+            <div class="name-container">
+                <p>Olá, {{ user.first_name }} {{ user.last_name }}! Bem-vindo de volta.</p>
+            </div>
+        </div>
+
             <p><a href="{% url 'perfil' %}" class="button">Meu Perfil</a></p>   
             <a href="{% url 'conta' %}" class="button">Minha Conta</a> <!-- Botão para acessar a conta -->
             <a href="{% url 'logout' %}" class="button">Sair</a>

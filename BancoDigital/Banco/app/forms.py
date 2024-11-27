@@ -8,7 +8,7 @@ from .models import Endereco
 class ClienteUserCreationForm(UserCreationForm):
     class Meta:
         model = Cliente
-        fields = ('username', 'email', 'first_name', 'last_name', 'CPF', 'telefone', 'foto')
+        fields = ('username', 'CPF', 'first_name', 'last_name', 'email', 'telefone', 'foto')
         
     def clean_CPF(self):
         cpf = self.cleaned_data.get('CPF')

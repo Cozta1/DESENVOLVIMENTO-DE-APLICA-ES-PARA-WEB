@@ -55,6 +55,15 @@
         .button:hover {
             background-color: #0056b3;
         }
+        .delete-button {
+            background-color: #dc3545; /* Botão vermelho para excluir */
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .add-endereco {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -76,16 +85,38 @@
             </div>
         </div>
 
+        <!-- Exibindo os Endereços do Cliente -->
+        <h3>Endereços</h3>
+        {% if cliente.enderecos.all %}
+            <ul class="enderecos-lista">
+                {% for endereco in cliente.enderecos.all %}
+                    <li>
+                        <p>{{ endereco.rua }} - {{ endereco.numero }} - {{ endereco.bairro }} - {{ endereco.cidade }} - {{ endereco.estado }} - {{ endereco.cep }}</p>
+
+                        <!-- Botão de Excluir Endereço -->
+                        <form method="POST" action="{% url 'excluir_endereco' endereco.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="button delete-button">Excluir</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Você ainda não possui nenhum endereço cadastrado.</p>
+        {% endif %}
+
+        <!-- Botão para Adicionar Endereço -->
+        <div class="add-endereco">
+            <a href="{% url 'cadastrar_endereco' %}" class="button">Adicionar Novo Endereço</a>
+        </div>
+
+        <!-- Exibindo as Contas do Cliente -->
         <h3>Contas</h3>
         {% if contas %}
             <ul>
                 {% for conta in contas %}
                     <li>
-                        <p><strong>Conta:</strong> {{ conta.numero_conta }} - <strong>Agência:</strong> {{ conta.agencia.nomeagencia }} </p>
-                        <form action="{% url 'selecionar_conta' %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" name="conta_id" value="{{ conta.id }}" class="button">Selecionar Conta</button>
-                        </form>
+                        <p>Numero da conta: {{ conta.numeroConta }} - Agencia: {{ conta.agencia.nomeagencia }}</p>
                     </li>
                 {% endfor %}
             </ul>
@@ -93,18 +124,10 @@
             <p>Você ainda não tem nenhuma conta.</p>
         {% endif %}
 
-        <h3>Criar Nova Conta</h3>
-        <form method="POST">
-            {% csrf_token %}
-            <label for="agencia">Escolha uma Agência:</label>
-            <select name="agencia" id="agencia">
-                {% for agencia in agencias %}
-                    <option value="{{ agencia.id }}">{{ agencia.nomeagencia }} - {{ agencia.numeroagencia }}</option>
-                {% endfor %}
-            </select>
-            <br>
-            <button type="submit" class="button">Criar Nova Conta</button>
-        </form>
+        <!-- Formulário para Criar Nova Conta -->
+        <div class="add-endereco">
+            <a href="{% url 'selecionar_agencia' %}" class="button">Abrir Nova Conta</a>
+        </div>
 
         <br>
         <a href="{% url 'home' %}" class="button">Home</a>

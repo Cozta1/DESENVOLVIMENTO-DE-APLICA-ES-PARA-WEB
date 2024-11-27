@@ -6,7 +6,7 @@ from .models import Cliente, Agencia, Conta, Transacao, Cartao, Endereco, Notifi
 
 class EnderecoAdmin(admin.ModelAdmin):
     list_display = ('cliente', 'cep', 'rua', 'bairro', 'cidade', 'estado', 'numero', 'complemento')
-    search_fields = ('cliente__nome', 'cep', 'rua', 'bairro', 'cidade')  # permite buscar pelos campos
+    search_fields = ('cliente', 'cep', 'rua', 'bairro', 'cidade')  # permite buscar pelos campos
     list_filter = ('cliente', 'estado', 'cidade')  # adiciona filtros na barra lateral
     
 class EnderecoInline(admin.TabularInline):
@@ -14,12 +14,27 @@ class EnderecoInline(admin.TabularInline):
     model = Endereco
     extra = 1  # Número de formulários em branco para adicionar novos endereços
 
+
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('CPF', 'first_name','last_name', 'email', 'telefone', 'listar_enderecos', 'foto')  # Adicione o método aqui
-    inlines = [EnderecoInline]  # Adiciona a possibilidade de editar endereços no formulário do cliente
+    list_display = ('CPF', 'first_name', 'last_name', 'email', 'telefone', 'listar_enderecos', 'foto')  
+    search_fields = ('CPF', 'first_name', 'last_name', 'email', 'telefone')  # Campos pesquisáveis no admin
+    ordering = ('CPF',)  # Ordenação padrão no admin
+    list_filter = ('is_staff', 'is_active')  # Filtros adicionais
+    readonly_fields = ('listar_enderecos',)  # Exibe os endereços, mas não permite edição direta
+    inlines = [EnderecoInline]  # Permite gerenciar endereços diretamente no cliente
+    fieldsets = (
+        (None, {
+            'fields': ('CPF', 'password')
+        }),
+        ('Informações pessoais', {
+            'fields': ('first_name', 'last_name', 'email', 'telefone', 'foto')
+        }),
+        ('Permissões', {
+            'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')
+        }),
+    )
 
 admin.site.register(Cliente, ClienteAdmin)
-admin.site.register(Endereco, EnderecoAdmin)
     
 
     

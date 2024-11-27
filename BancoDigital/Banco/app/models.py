@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 import random
 from datetime import date, timedelta
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 def get_file_path(_instance, filename):
     ext = filename.split('.')[-1]
@@ -47,28 +47,85 @@ class Endereco(models.Model):
     ###################################################################################
 
 
+
+class ClienteManager(BaseUserManager):
+    """
+    Custom manager para o modelo Cliente, utilizando CPF como campo único de identificação.
+    """
+
+    def create_user(self, CPF, email, password=None, **extra_fields):
+        if not CPF:
+            raise ValueError("O campo CPF é obrigatório.")
+        if not email:
+            raise ValueError("O campo email é obrigatório.")
+
+        email = self.normalize_email(email)
+        user = self.model(CPF=CPF, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, CPF, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superusuários precisam ter is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superusuários precisam ter is_superuser=True.')
+
+        return self.create_user(CPF, email, password, **extra_fields)
+
 class Cliente(AbstractUser):
     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
-    telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
-    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
+    telefone = models.CharField(_('Telefone'), max_length=11, null=False, blank=False, default='')
+    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', 
+                         variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
 
+    first_name = models.CharField(_('Nome'), max_length=150, blank=False, null=False)
+    last_name = models.CharField(_('Sobrenome'), max_length=150, blank=False, null=False)
+    email = models.EmailField(_('E-Mail'), unique=True, blank=False, null=False)
 
-    first_name = models.CharField(_('Nome'),max_length=150, blank=False, null=False)
-    last_name = models.CharField(_('Sobrenome'),max_length=150, blank=False, null=False)
-    email = models.EmailField(_('E-Mail'),unique=True, blank=False, null=False)
+    USERNAME_FIELD = "CPF"
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
-    USERNAME_FIELD = 'CPF'
+    objects = ClienteManager()  # Associa o manager personalizado
 
     class Meta:
         verbose_name = _('Cliente')
         verbose_name_plural = _('Clientes')
 
     def __str__(self):
-        return self.username
+        return self.CPF  # Retorna o CPF como string representativa
 
     def listar_enderecos(self):
         return ", ".join(str(endereco) for endereco in self.enderecos.all())
-    listar_enderecos.short_description = 'Endereços' 
+    listar_enderecos.short_description = 'Endereços'
+
+# class Cliente(AbstractUser):
+#     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
+#     telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
+#     foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
+
+
+#     first_name = models.CharField(_('Nome'),max_length=150, blank=False, null=False)
+#     last_name = models.CharField(_('Sobrenome'),max_length=150, blank=False, null=False)
+#     email = models.EmailField(_('E-Mail'),unique=True, blank=False, null=False)
+
+    
+#     USERNAME_FIELD = "CPF"
+#     # REQUIRED_FIELDS = "CPF"
+
+#     class Meta:
+#         verbose_name = _('Cliente')
+#         verbose_name_plural = _('Clientes')
+
+#     def __str__(self):
+#         return self.CPF
+
+#     def listar_enderecos(self):
+#         return ", ".join(str(endereco) for endereco in self.enderecos.all())
+#     listar_enderecos.short_description = 'Endereços' 
     
     
 ###################################################################################
@@ -141,7 +198,7 @@ class Conta(models.Model):
         verbose_name_plural = _('Contas')
 
     def __str__(self):
-        return f'{self.cliente.nome} - {self.saldo}'
+        return f'{self.cliente.first_name} {self.cliente.last_name} - {self.saldo}'
 
 
 ###################################################################################
@@ -218,9 +275,9 @@ class Transacao(models.Model):
 
 class Cartao(models.Model):
     BANDEIRAS = [
-        ('visa', 'Visa'),
-        ('elo', 'Elo'),
-        ('mastercard', 'MasterCard'),
+        ('VISA', 'Visa'),
+        ('ELO', 'Elo'),
+        ('MASTERCARD', 'MasterCard'),
     ]
 
     numeroCartao = models.BigIntegerField(_('Numero do Cartão'), unique=True, blank=True, editable=False)
@@ -228,12 +285,16 @@ class Cartao(models.Model):
     bandeira = models.CharField(_('Bandeira'), max_length=20, choices=BANDEIRAS, default='visa')
     dataExpiracao = models.DateField(_('Data de Expiração'), blank=True, editable=False)
     cvv = models.IntegerField(_('CVV'), blank=True, editable=False)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)  # Adicionado campo cliente
 
     class Meta:
         verbose_name = _('Cartão')
         verbose_name_plural = _('Cartões')
 
     def save(self, *args, **kwargs):
+        if not self.cliente:
+            self.cliente = self.conta.cliente
+            
         if not self.numeroCartao:
             self.numeroCartao = self.gerar_numero_cartao()
         if not self.cvv:
@@ -259,7 +320,7 @@ class Cartao(models.Model):
         return int(numero)
 
     def __str__(self):
-        return f'{self.conta.cliente.nome} - {self.bandeira}'
+        return f'{self.cliente.first_name} {self.cliente.last_name} - {self.bandeira}'
 
 
 ##########################################################################################

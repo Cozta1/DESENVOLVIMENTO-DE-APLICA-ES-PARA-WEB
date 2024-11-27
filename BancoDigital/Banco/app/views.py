@@ -1,11 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from .forms import ClienteUserCreationForm
 from .forms import ClienteLoginForm
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from .forms import EnderecoForm
-from .models import Agencia, Conta, Endereco
+from .models import Agencia, Cartao, Conta, Endereco, Transacao
 
 
 def registro(request):
@@ -60,26 +60,10 @@ def home(request):
 
 @login_required
 def conta_view(request):
-    if request.method == 'POST':
-        saque = request.POST.get('saque')
-        deposito = request.POST.get('deposito')
-        conta_destino = request.POST.get('conta_destino')
-        valor_transferencia = request.POST.get('valor_transferencia')
+    # Buscar os cartões associados ao cliente logado
+    cartoes = Cartao.objects.filter(cliente=request.user)
 
-        # Lógica para realizar transações (só exemplo)
-        if saque:
-            # Processar o saque (reduzir saldo, etc.)
-            pass
-        if deposito:
-            # Processar o depósito (adicionar saldo, etc.)
-            pass
-        if conta_destino and valor_transferencia:
-            # Processar a transferência
-            pass
-
-        return redirect('conta')  # Redireciona de volta à página da conta
-
-    return render(request, 'conta.html')  # Exibe a página da conta
+    return render(request, 'conta.html', {'cartoes': cartoes}) 
 
 
 
@@ -91,7 +75,7 @@ def cadastrar_endereco(request):
             endereco = form.save(commit=False)
             endereco.cliente = request.user  # Relaciona o endereço ao usuário logado
             endereco.save()
-            return redirect('selecionar_agencia')  # Redireciona para a página de seleção de agência
+            return redirect('perfil')  # Redireciona para a página de seleção de agência
     else:
         form = EnderecoForm()
 
@@ -137,3 +121,68 @@ def perfil(request):
         'contas': contas,
         'agencias': agencias
     })
+
+
+def excluir_endereco(request, endereco_id):
+    endereco = get_object_or_404(Endereco, id=endereco_id, cliente=request.user)
+    endereco.delete()
+    return redirect('perfil')  # Redireciona para o perfil do usuário
+
+
+@login_required
+def solicitar_cartao(request):
+    if request.method == 'POST':
+        # Obtém os dados do formulário
+        conta_id = request.POST.get('conta')
+        bandeira = request.POST.get('bandeira')
+
+        # Verifica se a conta existe
+        try:
+            conta = Conta.objects.get(numeroConta=conta_id, cliente=request.user)
+        except Conta.DoesNotExist:
+            # Caso não exista, você pode redirecionar ou mostrar uma mensagem de erro
+            return render(request, 'solicitar_cartao.html', {'error': 'Conta não encontrada.'})
+
+        # Cria um novo cartão
+        cartao = Cartao(conta=conta, bandeira=bandeira)
+        cartao.save()  # O cliente será atribuído automaticamente aqui
+
+        # Passa o cartão solicitado para o template para exibição
+        return render(request, 'solicitar_cartao.html', {
+            'cartao_solicitado': cartao,
+            'contas': Conta.objects.filter(cliente=request.user)  # Apenas contas do cliente logado
+        })
+
+    # Exibe o formulário de solicitação de cartão
+    contas = Conta.objects.filter(cliente=request.user)
+    return render(request, 'solicitar_cartao.html', {'contas': contas})
+
+
+@login_required
+def transacao_view(request):
+    if request.method == 'POST':
+        tipo_transacao = request.POST.get('tipo_transacao')
+        valor = request.POST.get('valor')
+        conta_destino_id = request.POST.get('conta_destino') if tipo_transacao == 'transferencia' else None
+        
+        # Recuperar a conta do cliente logado
+        conta = Conta.objects.get(cliente=request.user)
+        
+        if tipo_transacao == 'saque':
+            # Criar uma transação de saque
+            transacao = Transacao(conta=conta, tipoTransacao='saque', valor=valor)
+            transacao.save()
+        elif tipo_transacao == 'deposito':
+            # Criar uma transação de depósito
+            transacao = Transacao(conta=conta, tipoTransacao='deposito', valor=valor)
+            transacao.save()
+        elif tipo_transacao == 'transferencia':
+            # Criar uma transação de transferência
+            conta_destino = Conta.objects.get(id=conta_destino_id)
+            transacao = Transacao(conta=conta, contaDestino=conta_destino, tipoTransacao='transferencia', valor=valor)
+            transacao.save()
+
+        # Redirecionar para a página de conta após a transação
+        return redirect('conta')
+
+    return render(request, 'transacao.html')
