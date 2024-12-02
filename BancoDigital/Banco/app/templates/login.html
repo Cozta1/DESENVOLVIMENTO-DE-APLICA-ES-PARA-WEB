@@ -5,83 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans "Login" %}</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 400px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input {
-            margin-bottom: 15px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-        }
-        .back-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            text-align: center;
-            background-color: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-top: 20px;
-        }
-        .back-btn:hover {
-            background-color: #218838;
-        }
-        .language-switcher {
-            margin-top: 20px;
-            text-align: center;
-        }
-        select {
-            padding: 5px;
-            font-size: 16px;
-        }
-    </style>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static './static/style.css' %}">
 </head>
 <body>
-    <div class="container">
+
+    <div class="main-container">
         <h1>{% trans "Login" %}</h1>
+
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
@@ -92,7 +24,7 @@
                 <label for="id_password">{% trans "Senha" %}</label>
                 {{ form.password }}
             </div>
-            <button type="submit">{% trans "Entrar" %}</button>
+            <button type="submit" class="button">{% trans "Entrar" %}</button>
 
             {% if form.non_field_errors %}
                 <div class="error">
@@ -104,7 +36,11 @@
                 </div>
             {% endif %}
         </form>
-        <a href="{% url 'registro' %}" class="back-btn">{% trans "Ainda não tem uma conta? Cadastre-se!" %}</a>
+
+        <div class="login-link">
+            <p>{% trans "Ainda não tem uma conta?" %} <a href="{% url 'registro' %}" class="back-btn">{% trans "Cadastre-se!" %}</a></p>
+        </div>
+        {% comment %} <a href="{% url 'registro' %}" class="back-btn">{% trans "Ainda não tem uma conta? Cadastre-se!" %}</a> {% endcomment %}
 
         <!-- Comutador de Idiomas -->
         <div class="language-switcher">
@@ -123,5 +59,11 @@
             </form>
         </div>
     </div>
+
+    <!-- Rodapé -->
+    <footer class="rodape">
+        <span class="app-name">Bank<span class="highlight">O!</span></span>
+        <p class="rodape_texto">Desenvolvido por Cozta1.</p>
+    </footer>
 </body>
 </html>

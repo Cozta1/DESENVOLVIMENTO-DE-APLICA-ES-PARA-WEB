@@ -5,105 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load i18n %}
     <title>{% trans "Realizar Transação" %}</title>
-    <style>
-        /* Estilos principais */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
 
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    {% load static %}
+    <link rel="stylesheet" href="{% static './static/style.css' %}">
 
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .form-group select, .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .saldo-info {
-            font-weight: bold;
-            margin-top: 8px;
-            color: #555;
-        }
-
-        .button {
-            display: block;
-            padding: 12px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-align: center;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .button:hover {
-            background-color: #0056b3;
-        }
-
-        .button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
+    <header id="topo">
+        <nav class="cabecalho">
+            <ul class="cabecalho__menu">
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'home' %}">Home</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link__ativo" href="{% url 'conta' %}">{% trans "Conta" %}</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'perfil' %}">{% trans "Perfil" %}</a></li>
+            </ul>
+            <span class="app-name">Bank<span class="highlight">O!</span></span>
+        </nav>
+    </header>
+
+    <div class="main-container">
         <h1>{% trans "Realizar Transação" %}</h1>
 
         {% if error %}
-            <p class="error">{{ error }}</p>
+            <p class="error" style="color: red; text-align: center;">{{ error }}</p>
         {% endif %}
 
         <form method="POST">
@@ -112,7 +35,7 @@
             <!-- Tipo de Transação -->
             <div class="form-group">
                 <label for="tipoTransacao">{% trans "Tipo de Transação:" %}</label>
-                <select name="tipoTransacao" id="tipoTransacao" required onchange="atualizarCampos()">
+                <select name="tipoTransacao" id="tipoTransacao" required onchange="atualizarCampos()" class="input-select">
                     <option value="deposito">{% trans "Depósito" %}</option>
                     <option value="saque">{% trans "Saque" %}</option>
                     <option value="transferencia">{% trans "Transferência" %}</option>
@@ -122,7 +45,7 @@
             <!-- Conta de Origem -->
             <div class="form-group">
                 <label for="conta">{% trans "Conta de Origem:" %}</label>
-                <select name="conta" id="conta" required onchange="mostrarSaldoOrigem()">
+                <select name="conta" id="conta" required onchange="mostrarSaldoOrigem()" class="input-select">
                     <option value="" disabled selected>{% trans "Selecione uma conta" %}</option>
                     {% for conta in contas_cliente %}
                         <option value="{{ conta.numeroConta }}" data-saldo="{{ conta.saldo }}">
@@ -130,13 +53,13 @@
                         </option>
                     {% endfor %}
                 </select>
-                <div id="saldo-origem" class="saldo-info"></div>
+                <span class= "highlight"><div id="saldo-origem" class="saldo-info"></div></span>
             </div>
 
             <!-- Conta de Destino -->
             <div class="form-group hidden" id="contaDestinoContainer">
                 <label for="contaDestino">{% trans "Conta de Destino:" %}</label>
-                <select name="contaDestino" id="contaDestino">
+                <select name="contaDestino" id="contaDestino" class="input-select">
                     <option value="" disabled selected>{% trans "Selecione uma conta" %}</option>
                     {% for conta in todas_contas %}
                         <option value="{{ conta.numeroConta }}">
@@ -154,25 +77,24 @@
 
             <button type="submit" class="button">{% trans "Confirmar Transação" %}</button>
         </form>
-
-        <a href="{% url 'conta' %}">{% trans "Voltar" %}</a>
     </div>
 
-
-    <form action="{% url 'set_language' %}" method="post">
-        {% csrf_token %}
-        <select name="language">
-            {% get_current_language as LANGUAGE_CODE %}
-            {% get_available_languages as LANGUAGES %}
-            {% for lang_code, lang_name in LANGUAGES %}
-                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
-                    {{ lang_name }}
-                </option>
-            {% endfor %}
-        </select>
-        <button type="submit">Mudar Idioma</button>
-    </form>
-
+    <!-- Comutador de Idiomas -->
+    <div class="language-switcher">
+        <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <select name="language">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                        {{ lang_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">{% trans "Mudar Idioma" %}</button>
+        </form>
+    </div>
 
     <script>
         function mostrarSaldoOrigem() {
@@ -197,5 +119,11 @@
         // Inicializa os campos ao carregar a página
         document.addEventListener("DOMContentLoaded", atualizarCampos);
     </script>
+
+    <!-- Rodapé -->
+    <footer class="rodape">
+        <span class="app-name">Bank<span class="highlight">O!</span></span>
+        <p class="rodape_texto">Desenvolvido por Cozta1.</p>
+    </footer>
 </body>
 </html>

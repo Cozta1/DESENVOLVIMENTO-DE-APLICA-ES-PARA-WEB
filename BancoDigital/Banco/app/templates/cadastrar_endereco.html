@@ -4,79 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load i18n %}
-    <title>{% trans "Cadastro de Endereço" %}</title> <!-- Traduzindo o título -->
-    <style>
-        /* Estilos para o formulário */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-        }
-        form {
-            text-align: left;
-        }
-        input, select {
-            padding: 8px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>{% trans "Cadastro de Endereço" %}</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static './static/style.css' %}">
 </head>
 <body>
-    <div class="container">
-        <h1>{% trans "Cadastro de Endereço" %}</h1> <!-- Traduzindo o título do formulário -->
-        <form method="POST">
+    <header id="topo">
+        <nav class="cabecalho">
+            <ul class="cabecalho__menu">
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'home' %}">Home</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'conta' %}">{% trans "Conta" %}</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'perfil' %}">{% trans "Perfil" %}</a></li>
+            </ul>
+            <span class="app-name">Bank<span class="highlight">O!</span></span>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <h1>{% trans "Cadastro de Endereço" %}</h1>
+        <form method="POST" class="form-endereco">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="button">{% trans "Salvar Endereço" %}</button> <!-- Traduzindo o texto do botão -->
+            <div class="form-group">
+                <label for="rua">{% trans "Rua" %}</label>
+                {{ form.rua }}
+            </div>
+            <div class="form-group">
+                <label for="numero">{% trans "Número" %}</label>
+                {{ form.numero }}
+            </div>
+            <div class="form-group">
+                <label for="bairro">{% trans "Bairro" %}</label>
+                {{ form.bairro }}
+            </div>
+            <div class="form-group">
+                <label for="cidade">{% trans "Cidade" %}</label>
+                {{ form.cidade }}
+            </div>
+
+            <div class="form-group">
+                <label for="estado">{% trans "Estado" %}</label>
+                <select name="estado" id="id_estado" class="input-select">
+                    {% for estado in form.estado.field.choices %}
+                        <option value="{{ estado.0 }}" {% if estado.0 == form.estado.value %}selected{% endif %}>
+                            {{ estado.1 }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cep">{% trans "CEP" %}</label>
+                {{ form.cep }}
+            </div>
+
+            <button type="submit" class="button">{% trans "Salvar Endereço" %}</button>
         </form>
+
         <br>
-        <a href="{% url 'perfil' %}" class="button">{% trans "Voltar ao Perfil" %}</a> <!-- Traduzindo o link -->
+        <a href="{% url 'perfil' %}" class="button">{% trans "Voltar ao Perfil" %}</a>
     </div>
 
     <!-- Comutador de Idiomas -->
-    <form action="{% url 'set_language' %}" method="post">
-        {% csrf_token %}
-        <select name="language">
-            {% get_current_language as LANGUAGE_CODE %}
-            {% get_available_languages as LANGUAGES %}
-            {% for lang_code, lang_name in LANGUAGES %}
-                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
-                    {{ lang_name }}
-                </option>
-            {% endfor %}
-        </select>
-        <button type="submit">Mudar Idioma</button>
-    </form>
+    <div class="language-switcher">
+        <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <select name="language">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                        {{ lang_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">{% trans "Mudar Idioma" %}</button>
+        </form>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="rodape">
+        <span class="app-name">Bank<span class="highlight">O!</span></span>
+        <p class="rodape_texto">Desenvolvido por Cozta1.</p>
+    </footer>
 </body>
 </html>

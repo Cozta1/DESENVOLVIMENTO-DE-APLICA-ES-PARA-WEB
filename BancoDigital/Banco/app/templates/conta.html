@@ -1,141 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    {% load i18n %} <!-- Carrega o módulo de internacionalização -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load i18n %}
-    <title>{% trans "Conta" %}</title> <!-- Traduzindo o título -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            font-size: 18px;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .transaction-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-        .transaction-buttons button {
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #28a745;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .transaction-buttons button:hover {
-            background-color: #218838;
-        }
-        .transaction-form {
-            display: none;
-            margin-top: 20px;
-            text-align: left;
-        }
-        .transaction-form input {
-            padding: 8px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-        }
-        .profile-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .photo-container {
-            margin-right: 15px;
-        }
-        .photo-container img {
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-        }
-        .placeholder {
-            background-color: #f0f0f0;
-            color: #999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            font-size: 40px;
-            font-weight: bold;
-        }
-        .name-container {
-            text-align: left;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .transaction-buttons button.active {
-            background-color: #0069d9;
-        }
-        .cards-section {
-            margin-top: 20px;
-            text-align: left;
-            display: none; /* Oculto por padrão */
-        }
-        .cards-section ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .cards-section ul li {
-            padding: 8px;
-            border: 1px solid #ddd;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            background: #f9f9f9;
-        }
-    </style>
+    <title>{% trans "Conta" %}</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static './static/style.css' %}"> <!-- Link para o arquivo de estilo CSS -->
+    
     <script>
-        function toggleCards() {
-            const cardsSection = document.getElementById('cards-section');
-            cardsSection.style.display = cardsSection.style.display === 'none' || cardsSection.style.display === '' ? 'block' : 'none';
+        function toggleNotifications() {
+            const notificationsSection = document.getElementById('noti-section');
+            notificationsSection.style.display = notificationsSection.style.display === 'none' || notificationsSection.style.display === '' ? 'block' : 'none';
         }
     </script>
+
 </head>
+
 <body>
-    <div class="container">
-        <div class="profile-header">
+    <header id="topo">
+        <nav class="cabecalho">
+            <ul class="cabecalho__menu">
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'home' %}">Home</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link__ativo" href="{% url 'conta' %}">{% trans "Conta" %}</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'perfil' %}">{% trans "Perfil" %}</a></li>
+            </ul>
+            <span class="app-name">Bank<span class="highlight">O!</span></span>
+        </nav>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <div class="main-container">
+        <h1 class="text-center">{% trans "Conta" %}</h1>
+
+        <!-- Bloco de Informações do Usuário -->
+        <div class="profile-info text-center">
             <div class="photo-container">
                 {% if user.foto %}
-                    <a href="{% url 'perfil' %}"><img src="{{ user.foto.url }}" alt="{% trans 'Foto do Usuário' %}"></a>
+                    <a href="{% url 'perfil' %}"><img src="{{ user.foto.url }}" alt="{% trans 'Foto do Usuário' %}" class="user-photo"></a>
                 {% else %}
                     <div class="placeholder">A</div> <!-- Placeholder com a inicial do nome -->
                 {% endif %}
@@ -145,17 +48,32 @@
             </div>
         </div>
 
-        <h1>{% trans "Operações Bancárias" %}</h1>
-
-        <div class="transaction-button">
-            <a href="{% url 'transacao' %}" class="button">{% trans "Realizar Transação" %}</a> <!-- Traduzindo o botão -->
+        <!-- Botão de Notificações centralizado -->
+        <div class="button-container">
+            <button class="button" onclick="toggleNotifications()">{% trans "Ultimas Transações" %}</button>
         </div>
 
-        <!-- Botão para Mostrar/Esconder Cartões -->
-        <button class="button" onclick="toggleCards()">{% trans "Meus Cartões" %}</button> <!-- Traduzindo o texto -->
+        <!-- Seção de Notificações -->
+        <div id="noti-section" class="cards-section">
+            {% if notificacoes %}
+                <ul>
+                    {% for notificacao in notificacoes %}
+                        <li>{{ notificacao.mensagem }} - {{ notificacao.dataHora|date:"d/m/Y H:i" }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>{% trans "Não há notificações." %}</p>
+            {% endif %}
+        </div>
+
+        <!-- Botões Centralizados -->
+        <div class="button-container text-center">
+            <a href="{% url 'transacao' %}" class="button">{% trans "Realizar Transação" %}</a>
+            <button class="button" onclick="toggleCards()">{% trans "Meus Cartões" %}</button>
+        </div>
 
         <!-- Seção de Cartões -->
-        <div id="cards-section" class="cards-section">
+        <div id="cards-section" class="cards-section text-center">
             <h3>{% trans "Cartões" %}</h3>
             {% if cartoes %}
                 <ul>
@@ -164,28 +82,40 @@
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>{% trans "Você ainda não tem nenhum cartão." %}</p> <!-- Traduzindo a mensagem -->
+                <p>{% trans "Você ainda não tem nenhum cartão." %}</p>
             {% endif %}
             <a href="{% url 'solicitar_cartao' %}" class="button">{% trans "Solicitar Novo Cartão" %}</a>
         </div>
+        
+        <!-- Comutador de Idiomas -->
+        <div class="language-switcher text-center">
+            <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <select name="language">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% for lang_code, lang_name in LANGUAGES %}
+                        <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                            {{ lang_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">{% trans "Mudar Idioma" %}</button>
+            </form>
+        </div>
+    </div> <!-- Fim do main-container -->
 
-        <!-- Botão para voltar ao perfil -->
-        <a href="{% url 'home' %}" class="button">{% trans "Home" %}</a> <!-- Traduzindo o link -->
-    </div>
-    <!-- Comutador de Idiomas -->
-    <form action="{% url 'set_language' %}" method="post">
-        {% csrf_token %}
-        <select name="language">
-            {% get_current_language as LANGUAGE_CODE %}
-            {% get_available_languages as LANGUAGES %}
-            {% for lang_code, lang_name in LANGUAGES %}
-                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
-                    {{ lang_name }}
-                </option>
-            {% endfor %}
-        </select>
-        <button type="submit">Mudar Idioma</button>
-    </form>
+    <!-- Rodapé -->
+    <footer class="rodape text-center">
+        <span class="app-name">Bank<span class="highlight">O!</span></span>
+        <p class="rodape_texto">Desenvolvido por Cozta1.</p>
+    </footer>
 
+    <script>
+        function toggleCards() {
+            const cardsSection = document.getElementById('cards-section');
+            cardsSection.style.display = cardsSection.style.display === 'none' || cardsSection.style.display === '' ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>

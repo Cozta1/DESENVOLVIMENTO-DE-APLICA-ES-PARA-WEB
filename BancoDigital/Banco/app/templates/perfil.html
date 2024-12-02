@@ -9,73 +9,50 @@
     {% load static %}
     <link rel="stylesheet" href="{% static './static/style.css' %}">
 
-    <style>
-        .cards-section {
-            margin-top: 20px;
-            text-align: left;
-            display: none; /* Oculto por padrão */
-        }
-        .cards-section ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .cards-section ul li {
-            padding: 8px;
-            border: 1px solid #ffffff;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            background: #000000;
-        }
-        .hidden {
-            display: none;
-        }
-        .language-switcher {
-            margin-top: 20px;
-            text-align: center;
-        }
-        select {
-            padding: 5px;
-            font-size: 16px;
-        }
-    </style>
-
     <script>
         function toggleNotifications() {
-            const notificationsSection = document.getElementById('notifications-section');
+            const notificationsSection = document.getElementById('cards-section');
             notificationsSection.style.display = notificationsSection.style.display === 'none' || notificationsSection.style.display === '' ? 'block' : 'none';
         }
     </script>
 </head>
+
 <body>
-    <!-- Cabeçalho -->
-    <div class="header">
-        <a href="{% url 'home' %}" class="button">{% trans "Home" %}</a>
-    </div>
+    <header id="topo">
+        <nav class="cabecalho">
+            <ul class="cabecalho__menu">
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'home' %}">Home</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'conta' %}">{% trans "Conta" %}</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link__ativo" href="{% url 'perfil' %}">{% trans "Perfil" %}</a></li>
+            </ul>
+            <span class="app-name">Bank<span class="highlight">O!</span></span>
+        </nav>
+    </header>
 
     <!-- Conteúdo principal -->
-    <div class="container">
+    <div class="main-container">
         <h1>{% trans "Perfil do Usuário" %}</h1>
         
+        <!-- Bloco de informações do usuário -->
         <div class="profile-info">
-            <!-- Exibe a foto do cliente, ou um placeholder -->
             {% if cliente.foto %}
                 <img src="{{ cliente.foto.url }}" alt="{% trans 'Foto de' %} {{ cliente.get_full_name }}">
             {% else %}
                 <img src="https://via.placeholder.com/120" alt="{% trans 'Foto de' %} {{ cliente.get_full_name }}">
             {% endif %}
             
-            <div>
-                <p><strong>{% trans "Nome" %}:</strong> {{ cliente.first_name }} {{ cliente.last_name }}</p>
-                <p><strong>{% trans "Email" %}:</strong> {{ cliente.email }}</p>
-                <p><strong>{% trans "CPF" %}:</strong> {{ cliente.CPF }}</p>
-            </div>
+            <p><span class="highlight">{% trans "Nome" %}:</span> {{ cliente.first_name }} {{ cliente.last_name }}</p>
+            <p><span class="highlight">{% trans "Email" %}:</span> {{ cliente.email }}</p>
+            <p><span class="highlight">{% trans "CPF" %}:</span> {{ cliente.CPF }}</p>
         </div>
 
-        <!-- Botão para Exibir Notificações -->
-        <button class="button" onclick="toggleNotifications()">{% trans "Exibir Notificações" %}</button>
+        <!-- Botão de Notificações centralizado -->
+        <div class="button-container">
+            <button class="button" onclick="toggleNotifications()">{% trans "Exibir Notificações" %}</button>
+        </div>
 
         <!-- Seção de Notificações -->
-        <div id="notifications-section" class="cards-section">
+        <div id="cards-section" class="cards-section">
             <h3>{% trans "Notificações" %}</h3>
             {% if notificacoes %}
                 <ul>
@@ -88,54 +65,55 @@
             {% endif %}
         </div>
 
-        <!-- Exibindo os Endereços do Cliente -->
-        <h3>{% trans "Endereços" %}</h3>
-        {% if cliente.enderecos.all %}
-            <ul class="enderecos-lista">
-                {% for endereco in cliente.enderecos.all %}
-                    <li>
-                        <p>{{ endereco.rua }} - {{ endereco.numero }} - {{ endereco.bairro }} - {{ endereco.cidade }} - {{ endereco.estado }} - {{ endereco.cep }}</p>
+        <!-- Bloco de Endereços -->
+        <div class="enderecos-lista">
+            <h3>{% trans "Endereços" %}</h3>
+            {% if cliente.enderecos.all %}
+                <ul>
+                    {% for endereco in cliente.enderecos.all %}
+                        <li>
+                            <p>{{ endereco.rua }} - {{ endereco.numero }} - {{ endereco.bairro }} - {{ endereco.cidade }} - {{ endereco.estado }} - {{ endereco.cep }}</p>
+                            <form method="POST" action="{% url 'excluir_endereco' endereco.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button delete-button">{% trans "Excluir" %}</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>{% trans "Você ainda não possui nenhum endereço cadastrado." %}</p>
+            {% endif %}
+        </div>
 
-                        <!-- Botão de Excluir Endereço -->
-                        <form method="POST" action="{% url 'excluir_endereco' endereco.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="button delete-button">{% trans "Excluir" %}</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>{% trans "Você ainda não possui nenhum endereço cadastrado." %}</p>
-        {% endif %}
-
-        <!-- Botão para Adicionar Endereço -->
+        <!-- Botão para Adicionar Novo Endereço -->
         <div class="add-endereco">
             <a href="{% url 'cadastrar_endereco' %}" class="button">{% trans "Adicionar Novo Endereço" %}</a>
         </div>
 
-        <!-- Exibindo as Contas do Cliente -->
-        <h3>{% trans "Contas" %}</h3>
-        {% if contas %}
-            <ul>
-                {% for conta in contas %}
-                    <li>
-                        <p>{% trans "Número da conta" %}: {{ conta.numeroConta }} - {% trans "Agência" %}: {{ conta.agencia.nomeagencia }} 
-                        <span class="saldo-info">{% trans "Saldo" %}: R$ {{ conta.saldo }}</span></p>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>{% trans "Você ainda não tem nenhuma conta." %}</p>
-        {% endif %}
+        <!-- Bloco de Contas -->
+        <div class="contas-lista">
+            <h3>{% trans "Contas" %}</h3>
+            {% if contas %}
+                <ul>
+                    {% for conta in contas %}
+                        <li>
+                            <p>{% trans "Número da conta" %}: {{ conta.numeroConta }} - {% trans "Agência" %}: {{ conta.agencia.nomeagencia }} 
+                            <span class="saldo-info">{% trans "Saldo" %}: R$ {{ conta.saldo }}</span></p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>{% trans "Você ainda não tem nenhuma conta." %}</p>
+            {% endif %}
+        </div>
 
-        <!-- Formulário para Criar Nova Conta -->
+        <!-- Botão para Abrir Nova Conta -->
         <div class="add-endereco">
             <a href="{% url 'selecionar_agencia' %}" class="button">{% trans "Abrir Nova Conta" %}</a>
         </div>
 
-        <br>
-        <a href="{% url 'home' %}" class="button">{% trans "Home" %}</a>
-
+        <a href="{% url 'logout' %}" class="button">{% trans "Sair" %}</a>
+        
         <!-- Comutador de Idiomas -->
         <div class="language-switcher">
             <form action="{% url 'set_language' %}" method="post">
@@ -152,11 +130,13 @@
                 <button type="submit">{% trans "Mudar Idioma" %}</button>
             </form>
         </div>
-    </div>
+        
+    </div> <!-- Fim do main-container -->
 
     <!-- Rodapé -->
-    <div class="footer">
-        <p>&copy; 2024 Meu Banco. {% trans "Todos os direitos reservados." %}</p>
-    </div>
+    <footer class="rodape">
+        <span class="app-name">Bank<span class="highlight">O!</span></span>
+        <p class="rodape_texto">Desenvolvido por Cozta1.</p>
+    </footer>
 </body>
 </html>

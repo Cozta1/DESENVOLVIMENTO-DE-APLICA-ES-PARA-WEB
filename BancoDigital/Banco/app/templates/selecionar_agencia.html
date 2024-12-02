@@ -1,73 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seleção de Agência</title>
-    <style>
-        /* Estilos para o formulário */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-        }
-        form {
-            text-align: left;
-        }
-        select {
-            padding: 8px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>{% trans "Seleção de Agência" %}</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static './static/style.css' %}">
+
 </head>
 <body>
-    <div class="container">
-        <h1>Seleção de Agência</h1>
+    <header id="topo">
+        <nav class="cabecalho">
+            <ul class="cabecalho__menu">
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'home' %}">Home</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link__ativo" href="{% url 'conta' %}">{% trans "Conta" %}</a></li>
+                <li class="cabecalho__menu__item"><a class="cabecalho__menu__link" href="{% url 'perfil' %}">{% trans "Perfil" %}</a></li>
+            </ul>
+            <span class="app-name">Bank<span class="highlight">O!</span></span>
+        </nav>
+    </header>
+
+
+    <div class="main-container">
+        <h1>{% trans "Seleção de Agência" %}</h1>
         <form method="POST">
             {% csrf_token %}
-            <label for="agencia">Escolha a Agência</label>
-            <select name="agencia" id="agencia" required>
-                <option value="" disabled selected>Selecione uma Agência</option>
+            <label for="agencia">{% trans "Escolha a Agência" %}</label>
+            <select name="agencia" id="agencia" required class="input-select">
+                <option value="" disabled selected>{% trans "Selecione uma Agência" %}</option>
                 {% for agencia in agencias %}
-                    <option value="{{ agencia.numeroagencia }}">{{ agencia.nomeagencia }} - {{ agencia.endereco.rua }}, {{ agencia.endereco.cidade }}</option>
+                    <option value="{{ agencia.numeroagencia }}">
+                        {{ agencia.nomeagencia }} - {{ agencia.endereco.rua }}, {{ agencia.endereco.cidade }}
+                    </option>
                 {% endfor %}
             </select>
-            <br>
-            <button type="submit" class="button">Selecionar Agência</button>
+            <button type="submit" class="button">{% trans "Criar Nova Conta" %}</button>
         </form>
-        <br>
-        <a href="{% url 'perfil' %}" class="button">Voltar ao Perfil</a>
+        <a href="{% url 'perfil' %}" class="button">{% trans "Voltar ao Perfil" %}</a>
     </div>
+
+    <!-- Rodapé -->
+    <footer class="rodape">
+        <span class="app-name">Bank<span class="highlight">O!</span></span>
+        <p class="rodape_texto">Desenvolvido por Cozta1.</p>
+    </footer>
 </body>
 </html>

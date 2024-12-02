@@ -53,7 +53,17 @@ def home(request):
 def conta_view(request):
     # Buscar os cartões associados ao cliente logado
     cartoes = Cartao.objects.filter(cliente=request.user)
-    return render(request, 'conta.html', {'cartoes': cartoes})
+    
+    cliente = request.user
+    contas = Conta.objects.filter(cliente=cliente)
+    notificacoes = Notificacao.objects.filter(conta__in=contas).order_by('-dataHora')
+    
+    return render(request, 'conta.html', 
+    {'cartoes': cartoes,
+    'cliente': cliente,
+    'contas': contas,
+    'notificacoes': notificacoes})
+
 
 @login_required
 def cadastrar_endereco(request):
