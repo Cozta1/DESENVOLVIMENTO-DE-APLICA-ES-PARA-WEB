@@ -1,10 +1,10 @@
-<!-- cadastrar_endereco.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Endereço</title>
+    {% load i18n %}
+    <title>{% trans "Cadastro de Endereço" %}</title> <!-- Traduzindo o título -->
     <style>
         /* Estilos para o formulário */
         body {
@@ -54,14 +54,29 @@
 </head>
 <body>
     <div class="container">
-        <h1>Cadastro de Endereço</h1>
+        <h1>{% trans "Cadastro de Endereço" %}</h1> <!-- Traduzindo o título do formulário -->
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="button">Salvar Endereço</button>
+            <button type="submit" class="button">{% trans "Salvar Endereço" %}</button> <!-- Traduzindo o texto do botão -->
         </form>
         <br>
-        <a href="{% url 'perfil' %}" class="button">Voltar ao Perfil</a>
+        <a href="{% url 'perfil' %}" class="button">{% trans "Voltar ao Perfil" %}</a> <!-- Traduzindo o link -->
     </div>
+
+    <!-- Comutador de Idiomas -->
+    <form action="{% url 'set_language' %}" method="post">
+        {% csrf_token %}
+        <select name="language">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% for lang_code, lang_name in LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                    {{ lang_name }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Mudar Idioma</button>
+    </form>
 </body>
 </html>

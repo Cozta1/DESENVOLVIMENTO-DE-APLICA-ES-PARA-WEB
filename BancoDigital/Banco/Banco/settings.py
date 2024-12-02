@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     
-    'corsheaders.middleware.CorsMiddleware',    
+    'django.middleware.locale.LocaleMiddleware',
     
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -145,18 +145,29 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'America/Sao_Paulo'
+USE_I18N = True          # Ativar internacionalização
+USE_L10N = True          # Ativar formatação local
+USE_TZ = True            # Ativar suporte para fusos horários
 
-USE_I18N = True
 
-USE_TZ = True
+LANGUAGES = [
+    ('en', 'English'),
+    ('pt-br', 'Português (Brasil)'),
+    ('es', 'Español'),
+]
 
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',  # Ajuste conforme sua estrutura
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    BASE_DIR / "app/templates/",  # Certifique-se de incluir o diretório correto
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

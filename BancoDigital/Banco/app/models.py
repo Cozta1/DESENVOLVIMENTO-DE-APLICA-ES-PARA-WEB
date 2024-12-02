@@ -35,7 +35,7 @@ class Endereco(models.Model):
     estado = models.CharField(_('Estado'), max_length=2, choices=ESTADO_CHOICES)
     numero = models.CharField(_('Número'), max_length=10)
     complemento = models.CharField(_('Complemento'), max_length=50, null=True, blank=True)
-    
+
     class Meta:
         verbose_name = _('Endereço')
         verbose_name_plural = _('Endereços')
@@ -49,15 +49,11 @@ class Endereco(models.Model):
 
 
 class ClienteManager(BaseUserManager):
-    """
-    Custom manager para o modelo Cliente, utilizando CPF como campo único de identificação.
-    """
-
     def create_user(self, CPF, email, password=None, **extra_fields):
         if not CPF:
-            raise ValueError("O campo CPF é obrigatório.")
+            raise ValueError(_("O campo CPF é obrigatório."))
         if not email:
-            raise ValueError("O campo email é obrigatório.")
+            raise ValueError(_("O campo email é obrigatório."))
 
         email = self.normalize_email(email)
         user = self.model(CPF=CPF, email=email, **extra_fields)
@@ -65,21 +61,22 @@ class ClienteManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
     def create_superuser(self, CPF, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-
         if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superusuários precisam ter is_staff=True.')
+            raise ValueError(_("Superusuários precisam ter is_staff=True."))
         if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superusuários precisam ter is_superuser=True.')
-
+            raise ValueError(_("Superusuários precisam ter is_superuser=True."))
         return self.create_user(CPF, email, password, **extra_fields)
+    
+    
 
 class Cliente(AbstractUser):
     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
     telefone = models.CharField(_('Telefone'), max_length=11, null=False, blank=False, default='')
-    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', 
+    foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/',
                          variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
 
     first_name = models.CharField(_('Nome'), max_length=150, blank=False, null=False)
@@ -102,38 +99,13 @@ class Cliente(AbstractUser):
         return ", ".join(str(endereco) for endereco in self.enderecos.all())
     listar_enderecos.short_description = 'Endereços'
 
-# class Cliente(AbstractUser):
-#     CPF = models.CharField(_('CPF'), max_length=11, unique=True, primary_key=True)
-#     telefone = models.CharField(_('Telefone'), max_length=11, unique=True, null=False, blank=False, default='')
-#     foto = StdImageField(_('Foto'), null=True, blank=True, upload_to='clientes/', variations={'thumb': {'width': 480, 'height': 480, 'crop': True}})
-
-
-#     first_name = models.CharField(_('Nome'),max_length=150, blank=False, null=False)
-#     last_name = models.CharField(_('Sobrenome'),max_length=150, blank=False, null=False)
-#     email = models.EmailField(_('E-Mail'),unique=True, blank=False, null=False)
-
-    
-#     USERNAME_FIELD = "CPF"
-#     # REQUIRED_FIELDS = "CPF"
-
-#     class Meta:
-#         verbose_name = _('Cliente')
-#         verbose_name_plural = _('Clientes')
-
-#     def __str__(self):
-#         return self.CPF
-
-#     def listar_enderecos(self):
-#         return ", ".join(str(endereco) for endereco in self.enderecos.all())
-#     listar_enderecos.short_description = 'Endereços' 
-    
     
 ###################################################################################
 
 
 class Agencia(models.Model):
     nomeagencia = models.CharField(_('Nome da Agência'), max_length=100)
-    numeroagencia = models.AutoField(primary_key=True, unique=True, editable=False)
+    numeroagencia = models.AutoField(_('Numero da Agencia'), primary_key=True, unique=True, editable=False)
     endereco = models.ForeignKey(Endereco, on_delete=models.CASCADE)
 
     class Meta:
@@ -213,11 +185,9 @@ class Transacao(models.Model):
         ('deposito', 'Depósito'),
         ('saque', 'Saque'),
         ('transferencia', 'Transferência')
-    ])
+    ], null=False, blank=False)
     status = models.CharField(_('Status'), max_length=20, default='pendente', editable=False)
     dataHora = models.DateTimeField(_('Data e Hora da Transação'), auto_now_add=True, null=True)
-
-    
 
     def save(self, *args, **kwargs):
         if self.tipoTransacao == 'saque':
@@ -226,7 +196,8 @@ class Transacao(models.Model):
             super().save(*args, **kwargs)
             Notificacao.objects.create(
                 conta=self.conta,
-                mensagem=f"Saque no valor de: R$:{self.valor} de {self.contaDestino} realizado com sucesso para transferência.")
+                mensagem=f"Saque no valor de R$ {self.valor:.2f} realizado com sucesso."
+            )
             
         else:
             if self.tipoTransacao == 'deposito':
@@ -236,7 +207,8 @@ class Transacao(models.Model):
                 
                 Notificacao.objects.create(
                     conta=self.conta,
-                    mensagem=f"Depósito no valor de: R$:{self.valor} de {self.contaDestino} realizado com sucesso.")
+                    mensagem=f"Depósito no valor de R$ {self.valor:.2f} realizado com sucesso."
+                )
                 
             else:
                 if self.tipoTransacao == 'transferencia' and self.contaDestino:
@@ -257,10 +229,22 @@ class Transacao(models.Model):
                         status='concluida',
                         dataHora=self.dataHora,)
                     deposito.save()
-
+                    
+                    Notificacao.objects.create(
+                            conta=self.conta,
+                            mensagem=(
+                                f"Transferência no valor de R$ {self.valor:.2f} realizada com sucesso de "
+                                f"{self.conta.cliente.get_full_name()} (Conta: {self.conta.numeroConta}) para "
+                                f"{self.contaDestino.cliente.get_full_name()} (Conta: {self.contaDestino.numeroConta})."
+                            )
+                        )
+                    
                     self.status = 'concluida'
 
             super().save(*args, **kwargs)
+            # Cria uma única notificação com informações da transferência
+  
+
 
     class Meta:
         verbose_name = _('Transação')

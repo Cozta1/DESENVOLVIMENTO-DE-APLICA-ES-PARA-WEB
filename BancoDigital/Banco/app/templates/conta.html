@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conta</title>
+    {% load i18n %}
+    <title>{% trans "Conta" %}</title> <!-- Traduzindo o título -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -105,19 +106,36 @@
         .transaction-buttons button.active {
             background-color: #0069d9;
         }
-        .cards-section, .enderecos-section {
-            margin-top: 40px;
+        .cards-section {
+            margin-top: 20px;
             text-align: left;
+            display: none; /* Oculto por padrão */
+        }
+        .cards-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .cards-section ul li {
+            padding: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            background: #f9f9f9;
         }
     </style>
+    <script>
+        function toggleCards() {
+            const cardsSection = document.getElementById('cards-section');
+            cardsSection.style.display = cardsSection.style.display === 'none' || cardsSection.style.display === '' ? 'block' : 'none';
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        
         <div class="profile-header">
             <div class="photo-container">
                 {% if user.foto %}
-                <a href="{% url 'perfil' %}"><img src="{{ user.foto.url }}" alt="Foto do Usuário"></a>
+                    <a href="{% url 'perfil' %}"><img src="{{ user.foto.url }}" alt="{% trans 'Foto do Usuário' %}"></a>
                 {% else %}
                     <div class="placeholder">A</div> <!-- Placeholder com a inicial do nome -->
                 {% endif %}
@@ -126,29 +144,48 @@
                 <p>{{ user.first_name }} {{ user.last_name }}</p>
             </div>
         </div>
-        <h1>Operações Bancárias</h1>
+
+        <h1>{% trans "Operações Bancárias" %}</h1>
 
         <div class="transaction-button">
-            <a href="{% url 'transacao' %}" class="button">Realizar Transação</a>
+            <a href="{% url 'transacao' %}" class="button">{% trans "Realizar Transação" %}</a> <!-- Traduzindo o botão -->
         </div>
 
+        <!-- Botão para Mostrar/Esconder Cartões -->
+        <button class="button" onclick="toggleCards()">{% trans "Meus Cartões" %}</button> <!-- Traduzindo o texto -->
+
         <!-- Seção de Cartões -->
-        <div class="cards-section">
-            <h3>Meus Cartões</h3>
+        <div id="cards-section" class="cards-section">
+            <h3>{% trans "Cartões" %}</h3>
             {% if cartoes %}
                 <ul>
                     {% for cartao in cartoes %}
-                        <li>{{ cartao.bandeira }} - {{ cartao.numeroCartao }} - Validade: {{ cartao.dataExpiracao }} - CVV: {{ cartao.cvv}}</li>
+                        <li>{{ cartao.bandeira }} - {{ cartao.numeroCartao }} - {% trans "Validade" %}: {{ cartao.dataExpiracao }} - CVV: {{ cartao.cvv }}</li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>Você ainda não tem nenhum cartão.</p>
+                <p>{% trans "Você ainda não tem nenhum cartão." %}</p> <!-- Traduzindo a mensagem -->
             {% endif %}
-            <a href="{% url 'solicitar_cartao' %}" class="button">Solicitar Novo Cartão</a>
+            <a href="{% url 'solicitar_cartao' %}" class="button">{% trans "Solicitar Novo Cartão" %}</a>
         </div>
 
         <!-- Botão para voltar ao perfil -->
-        <a href="{% url 'home' %}" class="button">Home</a>
+        <a href="{% url 'home' %}" class="button">{% trans "Home" %}</a> <!-- Traduzindo o link -->
     </div>
+    <!-- Comutador de Idiomas -->
+    <form action="{% url 'set_language' %}" method="post">
+        {% csrf_token %}
+        <select name="language">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% for lang_code, lang_name in LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                    {{ lang_name }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Mudar Idioma</button>
+    </form>
+
 </body>
 </html>

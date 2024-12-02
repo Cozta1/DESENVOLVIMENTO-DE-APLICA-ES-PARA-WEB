@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
-from .forms import ClienteUserCreationForm
+from .forms import ClienteUserCreationForm, TransacaoForm
 from .forms import ClienteLoginForm
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from .forms import EnderecoForm
-from .models import Agencia, Cartao, Conta, Endereco, Transacao
-
+from .models import Agencia, Cartao, Conta, Endereco, Notificacao, Transacao
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _  # Importando função de tradução
 
 def registro(request):
     if request.method == 'POST':
@@ -19,12 +20,8 @@ def registro(request):
         form = ClienteUserCreationForm()
     return render(request, 'registro.html', {'form': form})
 
-
-
 def sucesso(request):
     return render(request, 'sucesso.html', {'user': request.user})
-
-
 
 def login_view(request):
     if request.method == 'POST':
@@ -39,33 +36,24 @@ def login_view(request):
                 login(request, user)  # Login bem-sucedido
                 return redirect('home')  # Redireciona para a página inicial após o login
             else:
-                form.add_error(None, 'Credenciais inválidas. Tente novamente.')
+                form.add_error(None, _('Credenciais inválidas. Tente novamente.'))  # Mensagem de erro traduzida
     else:
         form = ClienteLoginForm()
 
     return render(request, 'login.html', {'form': form})
 
-
-
 def logout_view(request):
     logout(request)
     return redirect('home')  # Redireciona para a página inicial após o logout
 
-
-
 def home(request):
     return render(request, 'home.html')
-
-
 
 @login_required
 def conta_view(request):
     # Buscar os cartões associados ao cliente logado
     cartoes = Cartao.objects.filter(cliente=request.user)
-
-    return render(request, 'conta.html', {'cartoes': cartoes}) 
-
-
+    return render(request, 'conta.html', {'cartoes': cartoes})
 
 @login_required
 def cadastrar_endereco(request):
@@ -80,8 +68,6 @@ def cadastrar_endereco(request):
         form = EnderecoForm()
 
     return render(request, 'cadastrar_endereco.html', {'form': form})
-
-
 
 @login_required
 def selecionar_agencia(request):
@@ -100,18 +86,17 @@ def selecionar_agencia(request):
     agencias = Agencia.objects.all()  # Pega todas as agências
     return render(request, 'selecionar_agencia.html', {'agencias': agencias})
 
-
-
 @login_required
 def perfil(request):
     cliente = request.user
     contas = Conta.objects.filter(cliente=cliente)  # Obtém todas as contas do cliente
     agencias = Agencia.objects.all()  # Obtém todas as agências para a criação de novas contas
+    notificacoes = Notificacao.objects.filter(conta__in=contas).order_by('-dataHora')
     
     if request.method == 'POST':
         # Lógica para criar nova conta
         agencia_id = request.POST.get('agencia')
-        agencia = Agencia.objects.get(id=agencia_id)  # Seleciona a agência pela ID # Função para gerar número de conta, pode ser qualquer lógica
+        agencia = Agencia.objects.get(id=agencia_id)  # Seleciona a agência pela ID
         Conta.objects.create(cliente=cliente, agencia=agencia)
         return redirect('perfil')  # Redireciona para o perfil após criar a conta
     
@@ -119,15 +104,14 @@ def perfil(request):
         'cliente': cliente,
         'enderecos': Endereco,
         'contas': contas,
-        'agencias': agencias
+        'agencias': agencias,
+        'notificacoes': notificacoes
     })
-
 
 def excluir_endereco(request, endereco_id):
     endereco = get_object_or_404(Endereco, id=endereco_id, cliente=request.user)
     endereco.delete()
     return redirect('perfil')  # Redireciona para o perfil do usuário
-
 
 @login_required
 def solicitar_cartao(request):
@@ -141,7 +125,7 @@ def solicitar_cartao(request):
             conta = Conta.objects.get(numeroConta=conta_id, cliente=request.user)
         except Conta.DoesNotExist:
             # Caso não exista, você pode redirecionar ou mostrar uma mensagem de erro
-            return render(request, 'solicitar_cartao.html', {'error': 'Conta não encontrada.'})
+            return render(request, 'solicitar_cartao.html', {'error': _('Conta não encontrada.')})  # Mensagem de erro traduzida
 
         # Cria um novo cartão
         cartao = Cartao(conta=conta, bandeira=bandeira)
@@ -157,32 +141,24 @@ def solicitar_cartao(request):
     contas = Conta.objects.filter(cliente=request.user)
     return render(request, 'solicitar_cartao.html', {'contas': contas})
 
-
 @login_required
-def transacao_view(request):
+def realizar_transacao_view(request):
+    cliente = request.user  # Cliente logado
+    contas_cliente = Conta.objects.filter(cliente=cliente)
+    todas_contas = Conta.objects.all()  # Todas as contas para transferências
+
+    tipo_transacao = request.POST.get('tipoTransacao')  # Obtém o tipo de transação selecionado
+
     if request.method == 'POST':
-        tipo_transacao = request.POST.get('tipo_transacao')
-        valor = request.POST.get('valor')
-        conta_destino_id = request.POST.get('conta_destino') if tipo_transacao == 'transferencia' else None
-        
-        # Recuperar a conta do cliente logado
-        conta = Conta.objects.get(cliente=request.user)
-        
-        if tipo_transacao == 'saque':
-            # Criar uma transação de saque
-            transacao = Transacao(conta=conta, tipoTransacao='saque', valor=valor)
-            transacao.save()
-        elif tipo_transacao == 'deposito':
-            # Criar uma transação de depósito
-            transacao = Transacao(conta=conta, tipoTransacao='deposito', valor=valor)
-            transacao.save()
-        elif tipo_transacao == 'transferencia':
-            # Criar uma transação de transferência
-            conta_destino = Conta.objects.get(id=conta_destino_id)
-            transacao = Transacao(conta=conta, contaDestino=conta_destino, tipoTransacao='transferencia', valor=valor)
-            transacao.save()
+        form = TransacaoForm(request.POST, cliente=cliente, tipo_transacao=tipo_transacao)  # Passa o tipo de transação para o form
+        if form.is_valid():
+            form.save()
+            return redirect('conta')  # Redireciona para a página da conta após a transação
+    else:
+        form = TransacaoForm(cliente=cliente, tipo_transacao=tipo_transacao)  # Passa o tipo de transação para o form
 
-        # Redirecionar para a página de conta após a transação
-        return redirect('conta')
-
-    return render(request, 'transacao.html')
+    return render(request, 'realizar_transacao.html', {
+        'form': form,
+        'contas_cliente': contas_cliente,
+        'todas_contas': todas_contas
+    })

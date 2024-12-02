@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load i18n %}
+    <title>{% trans "Realizar Transação" %}</title>
+    <style>
+        /* Estilos principais */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .saldo-info {
+            font-weight: bold;
+            margin-top: 8px;
+            color: #555;
+        }
+
+        .button {
+            display: block;
+            padding: 12px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{% trans "Realizar Transação" %}</h1>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Tipo de Transação -->
+            <div class="form-group">
+                <label for="tipoTransacao">{% trans "Tipo de Transação:" %}</label>
+                <select name="tipoTransacao" id="tipoTransacao" required onchange="atualizarCampos()">
+                    <option value="deposito">{% trans "Depósito" %}</option>
+                    <option value="saque">{% trans "Saque" %}</option>
+                    <option value="transferencia">{% trans "Transferência" %}</option>
+                </select>
+            </div>
+            
+            <!-- Conta de Origem -->
+            <div class="form-group">
+                <label for="conta">{% trans "Conta de Origem:" %}</label>
+                <select name="conta" id="conta" required onchange="mostrarSaldoOrigem()">
+                    <option value="" disabled selected>{% trans "Selecione uma conta" %}</option>
+                    {% for conta in contas_cliente %}
+                        <option value="{{ conta.numeroConta }}" data-saldo="{{ conta.saldo }}">
+                            {% trans "Numero da conta" %}: {{ conta.numeroConta }} - {% trans "Agencia" %}: {{ conta.agencia.nomeagencia }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div id="saldo-origem" class="saldo-info"></div>
+            </div>
+
+            <!-- Conta de Destino -->
+            <div class="form-group hidden" id="contaDestinoContainer">
+                <label for="contaDestino">{% trans "Conta de Destino:" %}</label>
+                <select name="contaDestino" id="contaDestino">
+                    <option value="" disabled selected>{% trans "Selecione uma conta" %}</option>
+                    {% for conta in todas_contas %}
+                        <option value="{{ conta.numeroConta }}">
+                            {% trans "Numero da conta" %}: {{ conta.numeroConta }} - {% trans "Agencia" %}: {{ conta.agencia.nomeagencia }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Valor -->
+            <div class="form-group">
+                <label for="valor">{% trans "Valor:" %}</label>
+                <input type="number" name="valor" id="valor" step="0.01" required>
+            </div>
+
+            <button type="submit" class="button">{% trans "Confirmar Transação" %}</button>
+        </form>
+
+        <a href="{% url 'conta' %}">{% trans "Voltar" %}</a>
+    </div>
+
+
+    <form action="{% url 'set_language' %}" method="post">
+        {% csrf_token %}
+        <select name="language">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% for lang_code, lang_name in LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                    {{ lang_name }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Mudar Idioma</button>
+    </form>
+
+
+    <script>
+        function mostrarSaldoOrigem() {
+            const contaSelect = document.getElementById("conta");
+            const saldoInfo = contaSelect.options[contaSelect.selectedIndex].getAttribute("data-saldo");
+            document.getElementById("saldo-origem").innerText = saldoInfo ? `Saldo: R$ ${saldoInfo}` : "";
+        }
+
+        function atualizarCampos() {
+            const tipoTransacao = document.getElementById("tipoTransacao").value;
+            const contaDestinoContainer = document.getElementById("contaDestinoContainer");
+
+            if (tipoTransacao === "transferencia") {
+                contaDestinoContainer.classList.remove("hidden");
+                document.getElementById("contaDestino").required = true;
+            } else {
+                contaDestinoContainer.classList.add("hidden");
+                document.getElementById("contaDestino").required = false;
+            }
+        }
+
+        // Inicializa os campos ao carregar a página
+        document.addEventListener("DOMContentLoaded", atualizarCampos);
+    </script>
+</body>
+</html>

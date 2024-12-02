@@ -1,0 +1,531 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-02 15:10-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Español <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
+
+#: .\app\forms.py:18
+msgid "CPF já cadastrado."
+msgstr "CPF ya registrado."
+
+#: .\app\forms.py:23 .\app\models.py:77 .\app\templates\login.html:88
+#: .\app\templates\perfil.html:70
+msgid "CPF"
+msgstr "CPF"
+
+#: .\app\forms.py:23
+msgid "Digite seu CPF"
+msgstr "Ingrese su CPF"
+
+#: .\app\forms.py:24 .\app\templates\login.html:92
+msgid "Senha"
+msgstr "Contraseña"
+
+#: .\app\forms.py:32
+msgid "CPF não encontrado."
+msgstr "CPF no encontrado."
+
+#: .\app\forms.py:44 .\app\views.py:39
+msgid "Credenciais inválidas. Tente novamente."
+msgstr "Credenciales inválidas. Intente nuevamente."
+
+#: .\app\forms.py:54
+msgid "Digite o CEP"
+msgstr "Ingrese el código postal"
+
+#: .\app\forms.py:55
+msgid "Digite a rua"
+msgstr "Ingrese la calle"
+
+#: .\app\forms.py:56
+msgid "Digite o bairro"
+msgstr "Ingrese el barrio"
+
+#: .\app\forms.py:57
+msgid "Digite a cidade"
+msgstr "Ingrese la ciudad"
+
+#: .\app\forms.py:58
+msgid "Escolha o estado"
+msgstr "Elija el estado"
+
+#: .\app\forms.py:59
+msgid "Digite o número"
+msgstr "Ingrese el número"
+
+#: .\app\forms.py:60
+msgid "Complemento (opcional)"
+msgstr "Complemento (opcional)"
+
+#: .\app\forms.py:93
+msgid ""
+"A conta de destino deve ser a mesma que a conta de origem para Depósito ou "
+"Saque."
+msgstr ""
+"La cuenta de destino debe ser la misma que la cuenta de origen para Depósito o "
+"Retiro."
+
+#: .\app\forms.py:97
+msgid "A conta de destino é obrigatória para transferências."
+msgstr "La cuenta de destino es obligatoria para transferencias."
+
+#: .\app\models.py:31
+msgid "CEP"
+msgstr "Código postal"
+
+#: .\app\models.py:32
+msgid "Rua"
+msgstr "Calle"
+
+#: .\app\models.py:33
+msgid "Bairro"
+msgstr "Barrio"
+
+#: .\app\models.py:34
+msgid "Cidade"
+msgstr "Ciudad"
+
+#: .\app\models.py:35
+msgid "Estado"
+msgstr "Estado"
+
+
+
+
+
+#: .\app\models.py:36
+msgid "Número"
+msgstr "Número"
+
+#: .\app\models.py:37
+msgid "Complemento"
+msgstr "Complemento"
+
+#: .\app\models.py:40
+msgid "Endereço"
+msgstr "Dirección"
+
+#: .\app\models.py:41 .\app\templates\perfil.html:92
+msgid "Endereços"
+msgstr "Direcciones"
+
+#: .\app\models.py:54
+msgid "O campo CPF é obrigatório."
+msgstr "El campo CPF es obligatorio."
+
+#: .\app\models.py:56
+msgid "O campo email é obrigatório."
+msgstr "El campo correo electrónico es obligatorio."
+
+#: .\app\models.py:69
+msgid "Superusuários precisam ter is_staff=True."
+msgstr "Los superusuarios deben tener is_staff=True."
+
+#: .\app\models.py:71
+msgid "Superusuários precisam ter is_superuser=True."
+msgstr "Los superusuarios deben tener is_superuser=True."
+
+#: .\app\models.py:78
+msgid "Telefone"
+msgstr "Teléfono"
+
+#: .\app\models.py:79
+msgid "Foto"
+msgstr "Foto"
+
+#: .\app\models.py:82 .\app\templates\perfil.html:68
+msgid "Nome"
+msgstr "Nombre"
+
+#: .\app\models.py:83
+msgid "Sobrenome"
+msgstr "Apellido"
+
+#: .\app\models.py:84
+msgid "E-Mail"
+msgstr "Correo electrónico"
+
+#: .\app\models.py:92
+msgid "Cliente"
+msgstr "Cliente"
+
+#: .\app\models.py:93
+msgid "Clientes"
+msgstr "Clientes"
+
+#: .\app\models.py:107
+msgid "Nome da Agência"
+msgstr "Nombre de la Agencia"
+
+#: .\app\models.py:108
+msgid "Numero da Agencia"
+msgstr "Número de la Agencia"
+
+#: .\app\models.py:112 .\app\templates\perfil.html:122
+msgid "Agência"
+msgstr "Agencia"
+
+#: .\app\models.py:113
+msgid "Agências"
+msgstr "Agencias"
+
+#: .\app\models.py:122
+msgid "Número da Conta"
+msgstr "Número de la Cuenta"
+
+#: .\app\models.py:125
+msgid "Data de Abertura"
+msgstr "Fecha de Apertura"
+
+#: .\app\models.py:128 .\app\models.py:250
+msgid "Transação"
+msgstr "Transacción"
+
+#: .\app\models.py:129 .\app\models.py:251
+msgid "Transações"
+msgstr "Transacciones"
+
+
+
+
+#: .\app\models.py:169 .\app\templates\conta.html:7
+msgid "Conta"
+msgstr "Cuenta"
+
+#: .\app\models.py:170 .\app\templates\perfil.html:117
+msgid "Contas"
+msgstr "Cuentas"
+
+#: .\app\models.py:180
+msgid "Número da Transação"
+msgstr "Número de la Transacción"
+
+#: .\app\models.py:183
+msgid "Valor"
+msgstr "Valor"
+
+#: .\app\models.py:184
+msgid "Tipo de Transação"
+msgstr "Tipo de Transacción"
+
+#: .\app\models.py:189
+msgid "Status"
+msgstr "Estado"
+
+#: .\app\models.py:190
+msgid "Data e Hora da Transação"
+msgstr "Fecha y Hora de la Transacción"
+
+#: .\app\models.py:267
+msgid "Numero do Cartão"
+msgstr "Número de la Tarjeta"
+
+#: .\app\models.py:269
+msgid "Bandeira"
+msgstr "Marca"
+
+#: .\app\models.py:270
+msgid "Data de Expiração"
+msgstr "Fecha de Expiración"
+
+#: .\app\models.py:271
+msgid "CVV"
+msgstr "CVV"
+
+#: .\app\models.py:275
+msgid "Cartão"
+msgstr "Tarjeta"
+
+#: .\app\models.py:276 .\app\templates\conta.html:159
+msgid "Cartões"
+msgstr "Tarjetas"
+
+#: .\app\models.py:315
+msgid "Mensagem"
+msgstr "Mensaje"
+
+#: .\app\models.py:316
+msgid "Data e Hora"
+msgstr "Fecha y Hora"
+
+#: .\app\models.py:319
+msgid "Notificação"
+msgstr "Notificación"
+
+#: .\app\models.py:320 .\app\templates\perfil.html:79
+msgid "Notificações"
+msgstr "Notificaciones"
+
+#: .\app\templates\cadastrar_endereco.html:7
+#: .\app\templates\cadastrar_endereco.html:57
+msgid "Cadastro de Endereço"
+msgstr "Registro de Dirección"
+
+#: .\app\templates\cadastrar_endereco.html:61
+msgid "Salvar Endereço"
+msgstr "Guardar Dirección"
+
+#: .\app\templates\cadastrar_endereco.html:64
+#: .\app\templates\solicitar_cartao.html:73
+msgid "Voltar ao Perfil"
+msgstr "Volver al Perfil"
+
+#: .\app\templates\conta.html:138 .\app\templates\home.html:91
+msgid "Foto do Usuário"
+msgstr "Foto del Usuario"
+
+#: .\app\templates\conta.html:148
+msgid "Operações Bancárias"
+msgstr "Operaciones Bancarias"
+
+#: .\app\templates\conta.html:151 .\app\templates\realizar_transacao.html:7
+#: .\app\templates\realizar_transacao.html:103
+msgid "Realizar Transação"
+msgstr "Realizar Transacción"
+
+#: .\app\templates\conta.html:155
+msgid "Meus Cartões"
+msgstr "Mis Tarjetas"
+
+
+
+
+
+#: .\app\templates\conta.html:163
+msgid "Validade"
+msgstr "Validez"
+
+#: .\app\templates\conta.html:167
+msgid "Você ainda não tem nenhum cartão."
+msgstr "Aún no tienes ninguna tarjeta."
+
+#: .\app\templates\conta.html:169
+msgid "Solicitar Novo Cartão"
+msgstr "Solicitar Nueva Tarjeta"
+
+#: .\app\templates\conta.html:173 .\app\templates\perfil.html:52
+#: .\app\templates\perfil.html:137
+msgid "Home"
+msgstr "Inicio"
+
+#: .\app\templates\home.html:7 .\app\templates\home.html:84
+msgid "Página Inicial"
+msgstr "Página de Inicio"
+
+#: .\app\templates\home.html:97
+msgid "Olá,"
+msgstr "Hola,"
+
+#: .\app\templates\home.html:97
+msgid "Bem-vindo de volta."
+msgstr "Bienvenido de nuevo."
+
+#: .\app\templates\home.html:101
+msgid "Meu Perfil"
+msgstr "Mi Perfil"
+
+#: .\app\templates\home.html:102
+msgid "Minha Conta"
+msgstr "Mi Cuenta"
+
+#: .\app\templates\home.html:103
+msgid "Sair"
+msgstr "Salir"
+
+#: .\app\templates\home.html:107
+msgid "Bem-vindo ao nosso site! Por favor,"
+msgstr "¡Bienvenido a nuestro sitio! Por favor,"
+
+#: .\app\templates\home.html:107
+msgid "faça login"
+msgstr "inicie sesión"
+
+#: .\app\templates\home.html:107
+msgid "para acessar sua conta."
+msgstr "para acceder a tu cuenta."
+
+#: .\app\templates\home.html:108
+msgid "Cadastre-se"
+msgstr "Regístrate"
+
+#: .\app\templates\home.html:125 .\app\templates\login.html:122
+#: .\app\templates\perfil.html:152 .\app\templates\registro.html:127
+#: .\app\templates\solicitar_cartao.html:88
+msgid "Mudar Idioma"
+msgstr "Cambiar Idioma"
+
+#: .\app\templates\login.html:7 .\app\templates\login.html:84
+msgid "Login"
+msgstr "Iniciar sesión"
+
+#: .\app\templates\login.html:95
+msgid "Entrar"
+msgstr "Entrar"
+
+#: .\app\templates\login.html:107
+msgid "Ainda não tem uma conta? Cadastre-se!"
+msgstr "¿Aún no tienes cuenta? ¡Regístrate!"
+
+#: .\app\templates\perfil.html:7
+msgid "Perfil"
+msgstr "Perfil"
+
+#: .\app\templates\perfil.html:57
+msgid "Perfil do Usuário"
+msgstr "Perfil del Usuario"
+
+#: .\app\templates\perfil.html:62 .\app\templates\perfil.html:64
+msgid "Foto de"
+msgstr "Foto de"
+
+#: .\app\templates\perfil.html:69
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: .\app\templates\perfil.html:75
+msgid "Exibir Notificações"
+msgstr "Mostrar Notificaciones"
+
+#: .\app\templates\perfil.html:87
+msgid "Não há notificações."
+msgstr "No hay notificaciones."
+
+#: .\app\templates\perfil.html:102
+msgid "Excluir"
+msgstr "Eliminar"
+
+#: .\app\templates\perfil.html:108
+msgid "Você ainda não possui nenhum endereço cadastrado."
+msgstr "Aún no tienes ninguna dirección registrada."
+
+#: .\app\templates\perfil.html:113
+msgid "Adicionar Novo Endereço"
+msgstr "Agregar Nueva Dirección"
+
+#: .\app\templates\perfil.html:122
+msgid "Número da conta"
+msgstr "Número de la cuenta"
+
+#: .\app\templates\perfil.html:123
+msgid "Saldo"
+msgstr "Saldo"
+
+#: .\app\templates\perfil.html:128
+msgid "Você ainda não tem nenhuma conta."
+msgstr "Aún no tienes ninguna cuenta."
+
+#: .\app\templates\perfil.html:133
+msgid "Abrir Nova Conta"
+msgstr "Abrir Nueva Cuenta"
+
+#: .\app\templates\perfil.html:159
+msgid "Todos os direitos reservados."
+msgstr "Todos los derechos reservados."
+
+#: .\app\templates\realizar_transacao.html:114
+msgid "Tipo de Transação:"
+msgstr "Tipo de Transacción:"
+
+#: .\app\templates\realizar_transacao.html:116
+msgid "Depósito"
+msgstr "Depósito"
+
+#: .\app\templates\realizar_transacao.html:117
+msgid "Saque"
+msgstr "Retiro"
+
+#: .\app\templates\realizar_transacao.html:118
+msgid "Transferência"
+msgstr "Transferencia"
+
+#: .\app\templates\realizar_transacao.html:124
+msgid "Conta de Origem:"
+msgstr "Cuenta de Origen:"
+
+#: .\app\templates\realizar_transacao.html:126
+#: .\app\templates\realizar_transacao.html:140
+msgid "Selecione uma conta"
+msgstr "Selecciona una cuenta"
+
+#: .\app\templates\realizar_transacao.html:129
+#: .\app\templates\realizar_transacao.html:143
+msgid "Numero da conta"
+msgstr "Número de la cuenta"
+
+#: .\app\templates\realizar_transacao.html:129
+#: .\app\templates\realizar_transacao.html:143
+msgid "Agencia"
+msgstr "Agencia"
+
+#: .\app\templates\realizar_transacao.html:138
+msgid "Conta de Destino:"
+msgstr "Cuenta de Destino:"
+
+#: .\app\templates\realizar_transacao.html:151
+msgid "Valor:"
+msgstr "Valor:"
+
+#: .\app\templates\realizar_transacao.html:155
+msgid "Confirmar Transação"
+msgstr "Confirmar Transacción"
+
+#: .\app\templates\realizar_transacao.html:158
+msgid "Voltar"
+msgstr "Volver"
+
+#: .\app\templates\registro.html:6 .\app\templates\registro.html:95
+msgid "Cadastro"
+msgstr "Registro"
+
+#: .\app\templates\registro.html:109
+msgid "Preencha suas informações"
+msgstr "Rellena tus datos"
+
+#: .\app\templates\registro.html:112
+msgid "Cadastrar"
+msgstr "Registrar"
+
+
+#: .\app\templates\registro.html:132
+msgid "Já possui uma conta?"
+msgstr "¿Ya tienes una cuenta?"
+
+#: .\app\templates\registro.html:132
+msgid "Faça login!"
+msgstr "¡Inicia sesión!"
+
+#: .\app\templates\solicitar_cartao.html:6
+#: .\app\templates\solicitar_cartao.html:57
+msgid "Seleção de Agência"
+msgstr "Selección de Agencia"
+
+#: .\app\templates\solicitar_cartao.html:60
+msgid "Escolha a Agência"
+msgstr "Elige la Agencia"
+
+#: .\app\templates\solicitar_cartao.html:62
+msgid "Selecione uma Agência"
+msgstr "Selecciona una Agencia"
+
+#: .\app\templates\solicitar_cartao.html:70
+msgid "Selecionar Agência"
+msgstr "Seleccionar Agencia"
+
+#: .\app\views.py:128
+msgid "Conta não encontrada."
+msgstr "Cuenta no encontrada."

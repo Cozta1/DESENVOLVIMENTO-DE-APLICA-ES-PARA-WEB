@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    {% load i18n %} <!-- Carregar o módulo de internacionalização -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>{% trans "Login" %}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,22 +69,30 @@
         .back-btn:hover {
             background-color: #218838;
         }
+        .language-switcher {
+            margin-top: 20px;
+            text-align: center;
+        }
+        select {
+            padding: 5px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Login</h1>
+        <h1>{% trans "Login" %}</h1>
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
-                <label for="id_CPF">CPF</label>
+                <label for="id_CPF">{% trans "CPF" %}</label>
                 {{ form.CPF }}
             </div>
             <div class="form-group">
-                <label for="id_password">Senha</label>
+                <label for="id_password">{% trans "Senha" %}</label>
                 {{ form.password }}
             </div>
-            <button type="submit">Entrar</button>
+            <button type="submit">{% trans "Entrar" %}</button>
 
             {% if form.non_field_errors %}
                 <div class="error">
@@ -95,7 +104,24 @@
                 </div>
             {% endif %}
         </form>
-        <a href="{% url 'registro' %}" class="back-btn">Ainda não tem uma conta? Cadastre-se!</a>
+        <a href="{% url 'registro' %}" class="back-btn">{% trans "Ainda não tem uma conta? Cadastre-se!" %}</a>
+
+        <!-- Comutador de Idiomas -->
+        <div class="language-switcher">
+            <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <select name="language">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% for lang_code, lang_name in LANGUAGES %}
+                        <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                            {{ lang_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">{% trans "Mudar Idioma" %}</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

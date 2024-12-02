@@ -1,92 +1,95 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    {% load i18n %} <!-- Carrega o módulo de internacionalização -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil</title>
+    <title>{% trans "Perfil" %}</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static './static/style.css' %}">
+
     <style>
-        /* Estilos para o perfil */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
+        .cards-section {
+            margin-top: 20px;
+            text-align: left;
+            display: none; /* Oculto por padrão */
+        }
+        .cards-section ul {
+            list-style-type: none;
             padding: 0;
         }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        .profile-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .profile-info img {
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            margin-right: 20px;
-        }
-        .profile-info div {
-            font-size: 18px;
-        }
-        .enderecos-lista {
-            margin-top: 20px;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
+        .cards-section ul li {
+            padding: 8px;
+            border: 1px solid #ffffff;
+            margin-bottom: 5px;
             border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
+            background: #000000;
         }
-        .button:hover {
-            background-color: #0056b3;
+        .hidden {
+            display: none;
         }
-        .delete-button {
-            background-color: #dc3545; /* Botão vermelho para excluir */
-        }
-        .delete-button:hover {
-            background-color: #c82333;
-        }
-        .add-endereco {
+        .language-switcher {
             margin-top: 20px;
+            text-align: center;
+        }
+        select {
+            padding: 5px;
+            font-size: 16px;
         }
     </style>
+
+    <script>
+        function toggleNotifications() {
+            const notificationsSection = document.getElementById('notifications-section');
+            notificationsSection.style.display = notificationsSection.style.display === 'none' || notificationsSection.style.display === '' ? 'block' : 'none';
+        }
+    </script>
 </head>
 <body>
+    <!-- Cabeçalho -->
+    <div class="header">
+        <a href="{% url 'home' %}" class="button">{% trans "Home" %}</a>
+    </div>
+
+    <!-- Conteúdo principal -->
     <div class="container">
-        <h1>Perfil do Usuário</h1>
+        <h1>{% trans "Perfil do Usuário" %}</h1>
         
         <div class="profile-info">
             <!-- Exibe a foto do cliente, ou um placeholder -->
             {% if cliente.foto %}
-                <img src="{{ cliente.foto.url }}" alt="Foto de {{ cliente.get_full_name }}">
+                <img src="{{ cliente.foto.url }}" alt="{% trans 'Foto de' %} {{ cliente.get_full_name }}">
             {% else %}
-                <img src="https://via.placeholder.com/120" alt="Foto de {{ cliente.get_full_name }}">
+                <img src="https://via.placeholder.com/120" alt="{% trans 'Foto de' %} {{ cliente.get_full_name }}">
             {% endif %}
             
             <div>
-                <p><strong>Nome:</strong> {{ cliente.first_name }} {{ cliente.last_name }}</p>
-                <p><strong>Email:</strong> {{ cliente.email }}</p>
-                <p><strong>CPF:</strong> {{ cliente.CPF }}</p>
+                <p><strong>{% trans "Nome" %}:</strong> {{ cliente.first_name }} {{ cliente.last_name }}</p>
+                <p><strong>{% trans "Email" %}:</strong> {{ cliente.email }}</p>
+                <p><strong>{% trans "CPF" %}:</strong> {{ cliente.CPF }}</p>
             </div>
         </div>
 
+        <!-- Botão para Exibir Notificações -->
+        <button class="button" onclick="toggleNotifications()">{% trans "Exibir Notificações" %}</button>
+
+        <!-- Seção de Notificações -->
+        <div id="notifications-section" class="cards-section">
+            <h3>{% trans "Notificações" %}</h3>
+            {% if notificacoes %}
+                <ul>
+                    {% for notificacao in notificacoes %}
+                        <li>{{ notificacao.mensagem }} - {{ notificacao.dataHora|date:"d/m/Y H:i" }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>{% trans "Não há notificações." %}</p>
+            {% endif %}
+        </div>
+
         <!-- Exibindo os Endereços do Cliente -->
-        <h3>Endereços</h3>
+        <h3>{% trans "Endereços" %}</h3>
         {% if cliente.enderecos.all %}
             <ul class="enderecos-lista">
                 {% for endereco in cliente.enderecos.all %}
@@ -96,41 +99,64 @@
                         <!-- Botão de Excluir Endereço -->
                         <form method="POST" action="{% url 'excluir_endereco' endereco.id %}" style="display:inline;">
                             {% csrf_token %}
-                            <button type="submit" class="button delete-button">Excluir</button>
+                            <button type="submit" class="button delete-button">{% trans "Excluir" %}</button>
                         </form>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>Você ainda não possui nenhum endereço cadastrado.</p>
+            <p>{% trans "Você ainda não possui nenhum endereço cadastrado." %}</p>
         {% endif %}
 
         <!-- Botão para Adicionar Endereço -->
         <div class="add-endereco">
-            <a href="{% url 'cadastrar_endereco' %}" class="button">Adicionar Novo Endereço</a>
+            <a href="{% url 'cadastrar_endereco' %}" class="button">{% trans "Adicionar Novo Endereço" %}</a>
         </div>
 
         <!-- Exibindo as Contas do Cliente -->
-        <h3>Contas</h3>
+        <h3>{% trans "Contas" %}</h3>
         {% if contas %}
             <ul>
                 {% for conta in contas %}
                     <li>
-                        <p>Numero da conta: {{ conta.numeroConta }} - Agencia: {{ conta.agencia.nomeagencia }}</p>
+                        <p>{% trans "Número da conta" %}: {{ conta.numeroConta }} - {% trans "Agência" %}: {{ conta.agencia.nomeagencia }} 
+                        <span class="saldo-info">{% trans "Saldo" %}: R$ {{ conta.saldo }}</span></p>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>Você ainda não tem nenhuma conta.</p>
+            <p>{% trans "Você ainda não tem nenhuma conta." %}</p>
         {% endif %}
 
         <!-- Formulário para Criar Nova Conta -->
         <div class="add-endereco">
-            <a href="{% url 'selecionar_agencia' %}" class="button">Abrir Nova Conta</a>
+            <a href="{% url 'selecionar_agencia' %}" class="button">{% trans "Abrir Nova Conta" %}</a>
         </div>
 
         <br>
-        <a href="{% url 'home' %}" class="button">Home</a>
+        <a href="{% url 'home' %}" class="button">{% trans "Home" %}</a>
+
+        <!-- Comutador de Idiomas -->
+        <div class="language-switcher">
+            <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <select name="language">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% for lang_code, lang_name in LANGUAGES %}
+                        <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                            {{ lang_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">{% trans "Mudar Idioma" %}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="footer">
+        <p>&copy; 2024 Meu Banco. {% trans "Todos os direitos reservados." %}</p>
     </div>
 </body>
 </html>
